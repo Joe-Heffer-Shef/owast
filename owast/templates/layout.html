@@ -9,6 +9,7 @@
   <meta name="author" content="Joe Heffer">
 
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/bootstrap-icons.css') }}">
 </head>
 
 <body>
@@ -20,7 +21,10 @@
       <a class="nav-link" href="/">Home</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="/">Experiments</a>
+      <a class="nav-link" href="{{ url_for('experiment.list_') }}">List Experiments</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('experiment.create') }}">Add Experiment</a>
     </li>
   </ul>
 </nav>
@@ -29,6 +33,7 @@
 
 <!-- Content -->
 <div id="content">
+<h1>{{ title }}</h1>
 {% block content %}{% endblock %}
 </div>
 

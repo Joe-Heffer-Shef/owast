@@ -1,15 +1,25 @@
 {% extends "layout.html" %}
+{% set title = 'Add Experiment' %}
 {% block content %}
-
-<h1>Experiment</h1>
-<h2>Create</h2>
 <p>
-    Upload data
+    Enter metadata and upload data files.
 </p>
-<form action="{{ request.endpoint }}" method="post">
-    <label for="experiment_id">Experiment identifier</label>
-    <input type="text" name="experiment_id" id="experiment_id">
+<form action="{{ url_for(request.endpoint) }}" method="post">
+    <!-- Experiment ID -->
+    <div>
+        <label for="experiment_id" class="form-label">Experiment identifier</label>
+        <input type="text" class="form-control" name="experiment_id" id="experiment_id" required autocomplete="off">
+    </div>
 
-    <input type="submit">
+    <!-- Time -->
+    <div>
+        <label for="start_time" class="form-label">Start time</label>
+        <input type="datetime-local" class="form-control" name="start_time" id="start_time" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">
+        <i class="bi bi-plus-circle-fill"></i>
+        Add
+    </button>
 </form>
 {% endblock %}

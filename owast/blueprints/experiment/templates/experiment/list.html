@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% set title = 'Experiments' %}
+{% block content %}
+
+<ul>
+    {% for experiment in experiments %}
+    <li>{{ experiment }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

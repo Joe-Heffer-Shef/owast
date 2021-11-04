@@ -1,3 +1,4 @@
 flask~=2.0
 azure-storage-blob~=12.9
+pymongo~=3.12
 gunicorn
