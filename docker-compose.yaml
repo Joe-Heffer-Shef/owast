@@ -6,9 +6,11 @@ services:
   app:
     build:
       context: .
-      dockerfile: app/Dockerfile
+      dockerfile: owast/Dockerfile
     volumes:
       # Allow editing of files without rebuilding images
-      - ./app:/app
+      - ./owast:/owast
     ports:
       - 8000:8000
+    environment:
+      - FLASK_ENV=development

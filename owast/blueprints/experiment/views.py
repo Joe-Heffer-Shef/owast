@@ -1,6 +1,6 @@
 import flask
 
-blueprint = flask.Blueprint('experiment', __name__)
+blueprint = flask.Blueprint('experiment', __name__, url_prefix='/experiment')
 
 
 @blueprint.route('/create')
