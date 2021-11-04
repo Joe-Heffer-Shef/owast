@@ -1,0 +1,9 @@
+services:
+  blob:
+    image: mcr.microsoft.com/azure-blob-storage
+  meta:
+    image: mongo
+  ingress:
+    image: python
+  egress:
+    image: python
