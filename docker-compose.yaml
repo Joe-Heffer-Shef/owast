@@ -3,9 +3,12 @@ services:
     image: mcr.microsoft.com/azure-blob-storage
   meta:
     image: mongo
-  ingress:
+  app:
     build:
       context: .
-      dockerfile: ingress/Dockerfile
-  egress:
-    image: python:slim-bullseye
+      dockerfile: app/Dockerfile
+    volumes:
+      # Allow editing of files without rebuilding images
+      - ./app:/app
+    ports:
+      - 8000:8000
