@@ -4,6 +4,8 @@ services:
   meta:
     image: mongo
   ingress:
-    image: python
+    build:
+      context: .
+      dockerfile: ingress/Dockerfile
   egress:
-    image: python
+    image: python:slim-bullseye
