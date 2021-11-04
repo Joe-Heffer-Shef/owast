@@ -2,27 +2,42 @@
 
 <html lang="en">
 <head>
+  <title>AMRC OWAST | {{ title }}</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Advanced Manufacturing Research Centre (AMRC) One Way Assembly Sensor-based digital verification Technology (OWAST) database">
+  <meta name="author" content="Joe Heffer">
 
-  <title>A Basic HTML5 Template</title>
-  <meta name="description" content="A simple HTML5 Template for new projects.">
-  <meta name="author" content="SitePoint">
-
-  <meta property="og:title" content="A Basic HTML5 Template">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://????">
-  <meta property="og:description" content="A simple HTML5 Template for new projects.">
-  <meta property="og:image" content="image.png">
-
-  <link rel="icon" href="/favicon.ico">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-
-  <link rel="stylesheet" href="css/styles.css?v=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/bootstrap.min.css') }}">
 </head>
 
 <body>
+
+<!-- Menu -->
+<nav class="navbar navbar-expand-lg" role="navigation">
+  <ul class="navbar-nav bg-light">
+    <li class="nav-item">
+      <a class="nav-link" href="/">Home</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/">Experiments</a>
+    </li>
+  </ul>
+</nav>
+
+<div class="container">
+
+<!-- Content -->
+<div id="content">
 {% block content %}{% endblock %}
+</div>
+
+<div class="footer">
+  <hr>
+  &copy; Advanced Manufacturing Research Centre 2021
+</div>
+
+</div>
+
 </body>
 </html>

@@ -1,3 +1,4 @@
+# Development environment
 services:
   blob:
     image: mcr.microsoft.com/azure-blob-storage
