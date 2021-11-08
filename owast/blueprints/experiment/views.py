@@ -3,6 +3,7 @@ Experiment views
 """
 
 import datetime
+import json
 
 import flask
 import pymongo.database
@@ -51,7 +52,12 @@ def detail(experiment_id: str):
     Show the details of a particular experiment
     """
 
-    experiment = db.experiment.find_one(dict(experiment_id=experiment_id))
+    _experiment = db.experiment.find_one(dict(experiment_id=experiment_id))
+
+    # Show only certain fields
+    experiment = {key: value for key, value in _experiment.items() if not key.startswith('_')}
+
+    experiment = json.dumps(experiment, indent=2)
 
     # TODO create SAS token for Azure Blob Storage
     # this will be passed to Javascript for temporary authentication
