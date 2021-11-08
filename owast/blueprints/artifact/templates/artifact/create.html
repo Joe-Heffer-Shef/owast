@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% set title = 'Add Artifact' %}
+{% block content %}
+<p>
+    Upload a data file and specify its metadata.
+</p>
+<form method="post" action="{{ url_for(request.endpoint) }}">
+    <!-- Experiment ID -->
+    <div>
+        <label class="form-label" for="experiment_id">Experiment identifier</label>
+        <input class="form-control" type="text" readonly name="experiment_id" id="experiment_id" value="{{ experiment_id }}">
+    </div>
+
+    <!-- Creation time -->
+    <div>
+        <label class="form-label" for="created_at">Created at</label>
+        <input type="datetime-local" class="form-control" name="created_at" id="created_at" value="{{ time }}" required>
+    </div>
+
+    <!-- File upload -->
+    <div>
+        <label class="form-label" for="file">File</label>
+        <input class="form-control" type="file" name="file" id="file" required>
+    </div>
+
+    <!-- Metadata -->
+    <div class="row mt-2">
+        <div class="col">
+            <label class="form-label" for="meta_1_key">Metadata 1 Key</label>
+            <input type="text" class="form-control" name="meta_1_key" id="meta_1_key" required>
+        </div>
+        <div class="col">
+            <label class="form-label" for="meta_1_value">Metadata 1 Value</label>
+            <input type="text" class="form-control" name="meta_1_value" id="meta_1_value">
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col">
+            <label class="form-label" for="meta_2_key">Metadata 2 Key</label>
+            <input type="text" class="form-control" name="meta_2_key" id="meta_2_key" required>
+        </div>
+        <div class="col">
+            <label class="form-label" for="meta_2_value">Metadata 2 Value</label>
+            <input type="text" class="form-control" name="meta_2_value" id="meta_2_value">
+        </div>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn btn-primary mt-3">
+        <i class="bi bi-cloud-upload-fill"></i>
+        Upload
+    </button>
+</form>
+{% endblock %}

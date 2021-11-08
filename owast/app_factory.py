@@ -4,6 +4,7 @@ import flask
 
 import owast.blueprints.main.views
 import owast.blueprints.experiment.views
+import owast.blueprints.artifact.views
 
 
 def create_app() -> flask.Flask:
@@ -12,6 +13,7 @@ def create_app() -> flask.Flask:
     # Register blueprints
     app.register_blueprint(owast.blueprints.main.views.blueprint)
     app.register_blueprint(owast.blueprints.experiment.views.blueprint)
+    app.register_blueprint(owast.blueprints.artifact.views.blueprint)
 
     # TODO LDAP authentication (Active Directory)
 

@@ -1,7 +1,45 @@
 {% extends "layout.html" %}
 {% set title = 'Experiment' %}
 {% block content %}
-<pre>
-{{ experiment }}
-</pre>
+<div>
+    <!-- Experiment info -->
+    <div>
+        <dl>
+            {% for key, value in experiment.items() if key != 'meta' %}
+            <dt>{{ key }}</dt>
+            <dd>{{ value }}</dd>
+            {% endfor %}
+        </dl>
+    </div>
+
+    <!-- Metadata -->
+    <div>
+        <h2>Metadata</h2>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Key</th>
+                <th>Value</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for key, value in experiment.meta.items() %}
+            <tr>
+                <td>{{ key }}</td>
+                <td>{{ value }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Files -->
+    <div>
+        <h2>Files</h2>
+        <a class="btn btn-primary" href="{{ url_for('artifact.create', experiment_id=experiment.experiment_id) }}">
+            <span class="bi bi-cloud-upload-fill">
+            Upload file
+        </a>
+    </div>
+</div>
 {% endblock %}

@@ -3,7 +3,6 @@ Experiment views
 """
 
 import datetime
-import json
 import uuid
 
 import werkzeug.exceptions
@@ -13,6 +12,7 @@ import pymongo.collection
 import pymongo.results
 
 import owast.database
+import owast.utils
 
 app = flask.current_app
 blueprint = flask.Blueprint('experiment', __name__, url_prefix='/experiment', template_folder='templates')
@@ -34,19 +34,8 @@ def create_experiment() -> dict:
         experiment_id=flask.request.form['experiment_id'],
         # Parse timestamp
         start_time=datetime.datetime.fromisoformat(flask.request.form['start_time']),
-        meta=dict(),
+        meta=owast.utils.get_metadata(),
     )
-
-    # Iterate over any number of custom metadata fields
-    i = 1
-    while True:
-        try:
-            key = flask.request.form[f'meta_{i}_key']
-        except KeyError:
-            break
-        value = flask.request.form[f'meta_{i}_value']
-        experiment['meta'][key] = value
-        i += 1
 
     return experiment
 
@@ -68,7 +57,7 @@ def create():
 
         flask.flash(f'Added experiment {experiment["experiment_id"]}')
 
-        return flask.redirect(flask.url_for('experiment.list_'))
+        return flask.redirect(flask.url_for('experiment.detail', experiment_id=experiment['experiment_id']))
 
     # Default to current time
     time = datetime.datetime.now().replace(microsecond=0).isoformat()
@@ -96,8 +85,6 @@ def detail(experiment_id: str):
     experiment = {key: value for key, value in _experiment.items()
                   # Hide private fields
                   if not key.startswith('_')}
-
-    experiment = json.dumps(experiment, indent=2)
 
     # TODO create SAS token for Azure Blob Storage
     # this will be passed to Javascript for temporary authentication

@@ -8,13 +8,13 @@
     <!-- Experiment ID -->
     <div>
         <label for="experiment_id" class="form-label">Experiment identifier</label>
-        <input type="text" class="form-control" name="experiment_id" id="experiment_id" required autocomplete="off" value="{{ experiment_id }}">
+        <input type="text" class="form-control" name="experiment_id" id="experiment_id" required autocomplete="off">
     </div>
 
     <!-- Time -->
     <div>
         <label for="start_time" class="form-label">Start time</label>
-        <input type="datetime-local" class="form-control" name="start_time" id="start_time" required value="{{ time }}">
+        <input type="datetime-local" class="form-control" name="start_time" id="start_time" value="{{ time }}" required>
     </div>
 
     <!-- Metadata -->
@@ -27,12 +27,6 @@
             <label class="form-label" for="meta_1_value">Metadata 1 Value</label>
             <input type="text" class="form-control" name="meta_1_value" id="meta_1_value">
         </div>
-    </div>
-
-    <!-- File upload -->
-    <div>
-        <label class="form-label" for="file_1">File 1</label>
-        <input type="file" class="form-control" name="file_1" id="file_1">
     </div>
 
     <button type="submit" class="btn btn-primary mt-3">
