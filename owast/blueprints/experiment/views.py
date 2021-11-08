@@ -6,6 +6,7 @@ import datetime
 import json
 import uuid
 
+import werkzeug.exceptions
 import flask
 import pymongo.database
 import pymongo.collection
@@ -65,7 +66,7 @@ def create():
         # Create new experiment record
         experiments.insert_one(experiment)
 
-        flask.flash(f'Added experiment {experiment}')
+        flask.flash(f'Added experiment {experiment["experiment_id"]}')
 
         return flask.redirect(flask.url_for('experiment.list_'))
 
@@ -84,10 +85,17 @@ def detail(experiment_id: str):
     Show the details of a particular experiment
     """
 
-    _experiment = db.experiment.find_one(dict(experiment_id=experiment_id))
+    _experiment = db.experiments.find_one(dict(experiment_id=experiment_id))
+
+    # Not found
+    if not _experiment:
+        flask.flash(f'Experiment ID "{experiment_id}" not found')
+        raise werkzeug.exceptions.NotFound
 
     # Show only certain fields
-    experiment = {key: value for key, value in _experiment.items() if not key.startswith('_')}
+    experiment = {key: value for key, value in _experiment.items()
+                  # Hide private fields
+                  if not key.startswith('_')}
 
     experiment = json.dumps(experiment, indent=2)
 
