@@ -4,6 +4,7 @@ Experiment views
 
 import datetime
 import json
+import uuid
 
 import flask
 import pymongo.database
@@ -23,6 +24,32 @@ def list_():
     return flask.render_template('experiment/list.html', experiments=experiments)
 
 
+def create_experiment() -> dict:
+    """
+    Initialise a new experiment record
+    """
+
+    experiment = dict(
+        experiment_id=flask.request.form['experiment_id'],
+        # Parse timestamp
+        start_time=datetime.datetime.fromisoformat(flask.request.form['start_time']),
+        meta=dict(),
+    )
+
+    # Iterate over any number of custom metadata fields
+    i = 1
+    while True:
+        try:
+            key = flask.request.form[f'meta_{i}_key']
+        except KeyError:
+            break
+        value = flask.request.form[f'meta_{i}_value']
+        experiment['meta'][key] = value
+        i += 1
+
+    return experiment
+
+
 @blueprint.route('/create', methods={'GET', 'POST'})
 def create():
     """
@@ -30,11 +57,10 @@ def create():
     """
 
     if flask.request.method == 'POST':
-        experiment = dict(flask.request.form)
-        experiment['start_time'] = datetime.datetime.fromisoformat(experiment['start_time'])
-
         # Get document collection
         experiments = db.experiments  # type: pymongo.collection.Collection
+
+        experiment = create_experiment()
 
         # Create new experiment record
         experiments.insert_one(experiment)
@@ -43,7 +69,13 @@ def create():
 
         return flask.redirect(flask.url_for('experiment.list_'))
 
-    return flask.render_template('experiment/create.html')
+    # Default to current time
+    time = datetime.datetime.now().replace(microsecond=0).isoformat()
+
+    # Default random experiment identifier
+    experiment_id = str(uuid.uuid4())
+
+    return flask.render_template('experiment/create.html', time=time, experiment_id=experiment_id)
 
 
 @blueprint.route('/<string:experiment_id>')
