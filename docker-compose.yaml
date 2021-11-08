@@ -1,9 +1,15 @@
 # Development environment
 services:
+
   blob:
     image: mcr.microsoft.com/azure-blob-storage
+
   meta:
     image: mongo
+    volumes:
+      # Import scripts
+      - ./meta:/meta
+
   app:
     build:
       context: .
@@ -15,3 +21,4 @@ services:
       - 8000:8000
     environment:
       - FLASK_ENV=development
+    restart: always

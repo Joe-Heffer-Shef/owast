@@ -1,3 +1,5 @@
+import secrets
+
 import flask
 
 import owast.blueprints.main.views
@@ -12,5 +14,8 @@ def create_app() -> flask.Flask:
     app.register_blueprint(owast.blueprints.experiment.views.blueprint)
 
     # TODO LDAP authentication (Active Directory)
+
+    # Generate random secret key
+    app.secret_key = secrets.token_urlsafe()
 
     return app

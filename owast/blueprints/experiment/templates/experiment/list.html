@@ -4,7 +4,13 @@
 
 <ul>
     {% for experiment in experiments %}
-    <li>{{ experiment }}</li>
+    <li>
+        <a href="{{ url_for('experiment.detail', experiment_id=experiment.experiment_id) }}">
+            {{ experiment.experiment_id }}</a>
+        <a href="{{ url_for('experiment.delete', experiment_id=experiment.experiment_id) }}">
+            <span class="bi bi-trash-fill"></span>
+        </a>
+    </li>
     {% endfor %}
 </ul>
 {% endblock %}
