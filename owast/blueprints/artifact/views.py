@@ -28,6 +28,7 @@ def create():
         # Upload file
         for name, file in flask.request.files.items():
             blob_client = owast.blob.get_blob_client()
+            blob_client.upload_blob()
 
         # Go back to this experiment
         return flask.redirect(flask.url_for('experiment.detail', experiment_id=experiment_id))

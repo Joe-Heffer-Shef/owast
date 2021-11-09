@@ -2,7 +2,7 @@
 services:
 
   blob:
-    image: mcr.microsoft.com/azure-blob-storage
+    image: mcr.microsoft.com/azure-storage/azurite
 
   meta:
     image: mongo
