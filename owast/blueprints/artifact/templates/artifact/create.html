@@ -4,7 +4,7 @@
 <p>
     Upload a data file and specify its metadata.
 </p>
-<form method="post" action="{{ url_for(request.endpoint) }}">
+<form method="post" enctype="multipart/form-data" action="{{ url_for(request.endpoint) }}">
     <!-- Experiment ID -->
     <div>
         <label class="form-label" for="experiment_id">Experiment identifier</label>
@@ -19,8 +19,8 @@
 
     <!-- File upload -->
     <div>
-        <label class="form-label" for="file">File</label>
-        <input class="form-control" type="file" name="file" id="file" required>
+        <label class="form-label" for="file_1">File</label>
+        <input class="form-control" type="file" name="file_1" id="file_1" required>
     </div>
 
     <!-- Metadata -->

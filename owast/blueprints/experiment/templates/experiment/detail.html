@@ -35,11 +35,27 @@
 
     <!-- Files -->
     <div>
-        <h2>Files</h2>
-        <a class="btn btn-primary" href="{{ url_for('artifact.create', experiment_id=experiment.experiment_id) }}">
-            <span class="bi bi-cloud-upload-fill">
-            Upload file
-        </a>
+        <h2>Artifacts</h2>
+        <p>You can upload a new file here:</p>
+        <p>
+            <a class="btn btn-primary" href="{{ url_for('artifact.create', experiment_id=experiment.experiment_id) }}">
+                <span class="bi bi-cloud-upload-fill"></span>
+                Upload artifact
+            </a>
+        </p>
+        <p>The following files are associated with this experiment:</p>
+        <ul>
+            {% for artifact in artifacts %}
+            <li>
+                <a href="{{ url_for('artifact.detail', artifact_id=artifact._id) }}">
+                    {{ artifact._id }}
+                </a>
+                <a href="{{ url_for('artifact.delete', artifact_id=artifact._id) }}">
+                    <span class="bi bi-trash-fill"></span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
     </div>
 </div>
 {% endblock %}

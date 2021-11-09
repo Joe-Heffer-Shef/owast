@@ -25,21 +25,6 @@ def list_():
     return flask.render_template('experiment/list.html', experiments=experiments)
 
 
-def create_experiment() -> dict:
-    """
-    Initialise a new experiment record
-    """
-
-    experiment = dict(
-        experiment_id=flask.request.form['experiment_id'],
-        # Parse timestamp
-        start_time=datetime.datetime.fromisoformat(flask.request.form['start_time']),
-        meta=owast.utils.get_metadata(),
-    )
-
-    return experiment
-
-
 @blueprint.route('/create', methods={'GET', 'POST'})
 def create():
     """
@@ -50,7 +35,12 @@ def create():
         # Get document collection
         experiments = db.experiments  # type: pymongo.collection.Collection
 
-        experiment = create_experiment()
+        experiment = dict(
+            experiment_id=flask.request.form['experiment_id'],
+            # Parse timestamp
+            start_time=datetime.datetime.fromisoformat(flask.request.form['start_time']),
+            meta=owast.utils.get_metadata(),
+        )
 
         # Create new experiment record
         experiments.insert_one(experiment)
@@ -73,8 +63,9 @@ def detail(experiment_id: str):
     """
     Show the details of a particular experiment
     """
+    index = dict(experiment_id=experiment_id)
 
-    _experiment = db.experiments.find_one(dict(experiment_id=experiment_id))
+    _experiment = db.experiments.find_one(index)
 
     # Not found
     if not _experiment:
@@ -86,16 +77,10 @@ def detail(experiment_id: str):
                   # Hide private fields
                   if not key.startswith('_')}
 
-    # TODO create SAS token for Azure Blob Storage
-    # this will be passed to Javascript for temporary authentication
+    # Get artifacts for this experiment
+    artifacts = db.artifacts.find(index)
 
-    # TODO File upload
-    # https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-nodejs
-
-    # Uploading Large Files in Windows Azure Blob Storage Using Shared Access Signature, HTML, and JavaScript
-    # https://docs.microsoft.com/en-us/answers/questions/535512/how-to-upload-large-files-in-chunks-in-azure-blobs.html
-
-    return flask.render_template('experiment/detail.html', experiment=experiment)
+    return flask.render_template('experiment/detail.html', experiment=experiment, artifacts=artifacts)
 
 
 @blueprint.route('/<string:experiment_id>/delete')
