@@ -47,8 +47,9 @@
         <ul>
             {% for artifact in artifacts %}
             <li>
+                <i class="bi bi-file"></i>
                 <a href="{{ url_for('artifact.detail', artifact_id=artifact._id) }}">
-                    {{ artifact._id }}
+                    {{ artifact.name }}
                 </a>
                 <a href="{{ url_for('artifact.delete', artifact_id=artifact._id) }}">
                     <span class="bi bi-trash-fill"></span>

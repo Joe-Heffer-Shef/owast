@@ -23,3 +23,16 @@ def detail(container: str, blob: str):
     blob = blob_client.get_blob_properties()
 
     return flask.render_template('blob/detail.html', blob=blob)
+
+
+@blueprint.route('/<string:container>/<string:blob>/delete')
+def delete(container: str, blob: str):
+    blob_client = service_client.get_blob_client(
+        container=container, blob=blob)
+
+    blob_client.delete_blob()
+
+    flask.flash(f'Deleted blob "{container}/{blob}"')
+
+    return flask.redirect(
+        flask.url_for('container.detail', container=container))

@@ -14,10 +14,10 @@ def list_():
     return flask.render_template('container/list.html', containers=containers)
 
 
-@blueprint.route('/<string:container_name>')
-def detail(container_name: str):
+@blueprint.route('/<string:container>')
+def detail(container: str):
     container_client = service_client.get_container_client(
-        container=container_name)
+        container=container)
 
     container = container_client.get_container_properties()
 

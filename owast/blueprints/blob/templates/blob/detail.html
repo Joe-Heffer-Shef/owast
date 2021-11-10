@@ -2,6 +2,26 @@
 {% set title = 'Blob' %}
 {% set icon = 'file' %}
 {% block content %}
+<!-- Tools -->
+<div>
+    <!-- Up -->
+    <a class="btn btn-primary" href="{{ url_for('container.detail',
+    container=blob.container) }}">
+        <i class="bi bi-arrow-up"></i> Up
+    </a>
+
+    <!-- Download -->
+    <a class="btn btn-primary" href="{{ url_for('blob.delete', container=container,
+        blob=blob) }}">
+        <i class="bi bi-download"></i> Download
+    </a>
+
+    <!-- Delete -->
+    <a class="btn btn-danger" href="{{ url_for('blob.delete', container=container,
+        blob=blob) }}">
+        <i class="bi bi-trash-fill"></i> Delete
+    </a>
+</div>
 <dl>
 {% for key, value in blob.items() %}
     <dt>{{ key }}</dt>
