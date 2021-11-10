@@ -5,6 +5,7 @@ import bson.objectid
 import bson.json_util
 import werkzeug.exceptions
 import azure.storage.blob
+import azure.core.exceptions
 import pymongo.collection
 import pymongo.results
 
@@ -13,7 +14,8 @@ import owast.utils
 import owast.blob
 
 app = flask.current_app
-blueprint = flask.Blueprint('artifact', __name__, url_prefix='/artifact', template_folder='templates')
+blueprint = flask.Blueprint('artifact', __name__, url_prefix='/artifact',
+                            template_folder='templates')
 db = owast.database.get_db()
 
 
@@ -36,18 +38,20 @@ def create():
 
         # Upload file
         for name, file in flask.request.files.items():
-            # Create container (a folder for the experiment)
-            container = service_client.create_container(experiment_id)
-            app.logger.debug(container)
+            try:
+                # Create container (a folder for the experiment)
+                container = service_client.create_container(experiment_id)
+                app.logger.debug(container)
+            # Ignore if container already exists
+            except azure.core.exceptions.ResourceExistsError:
+                pass
 
             # Create blob
-            blob_client = owast.blob.get_blob_client(experiment_id, file.name)
-            blob_result = blob_client.upload_blob(file)
+            blob_client = service_client.get_blob_client(
+                container=experiment_id, blob=file.name)
+            blob_result = blob_client.upload_blob(file, overwrite=True)
 
             app.logger.debug(blob_result)
-
-            for key, value in blob_result.items():
-                flask.flash(f'{key} = {value}')
 
             flask.flash(f'Uploaded "{name}"')
 
@@ -55,17 +59,24 @@ def create():
             artifact = dict(
                 experiment_id=experiment_id,
                 meta=owast.utils.get_metadata(),
-                name=name,
-                blob=blob_result,
+                name=file.name,
+                blob=blob_result.copy(),
             )
+            # Encode MD5-sum as a string
+            artifact['blob']['content_md5'] = artifact['blob'][
+                'content_md5'].hex()
 
+            app.logger.info(artifact)
             db.artifacts.insert_one(artifact)
 
         # Go back to this experiment
-        return flask.redirect(flask.url_for('experiment.detail', experiment_id=experiment_id))
+        return flask.redirect(
+            flask.url_for('experiment.detail', experiment_id=experiment_id))
 
     time = datetime.datetime.utcnow().replace(microsecond=0).isoformat()
-    return flask.render_template('artifact/create.html', experiment_id=flask.request.args['experiment_id'], time=time)
+    return flask.render_template('artifact/create.html',
+                                 experiment_id=flask.request.args[
+                                     'experiment_id'], time=time)
 
 
 @blueprint.route('/<string:artifact_id>')
@@ -73,10 +84,12 @@ def detail(artifact_id: str):
     """
     Show the info for a file
     """
-    artifact = db.artifacts.find_one(dict(_id=bson.objectid.ObjectId(artifact_id)))
+    artifact = db.artifacts.find_one(
+        dict(_id=bson.objectid.ObjectId(artifact_id)))
     if not artifact:
         raise werkzeug.exceptions.NotFound
-    return app.response_class(bson.json_util.dumps(artifact, indent=2), mimetype='application/json')
+    return app.response_class(bson.json_util.dumps(artifact, indent=2),
+                              mimetype='application/json')
 
 
 @blueprint.route('/<string:artifact_id>/delete')
@@ -85,7 +98,8 @@ def delete(artifact_id: str):
     Remove a file
     """
     artifacts = db.artifacts  # type: pymongo.collection.Collection
-    result = artifacts.delete_one(dict(_id=bson.objectid.ObjectId(artifact_id)))  # type: pymongo.results.DeleteResult
+    result = artifacts.delete_one(dict(_id=bson.objectid.ObjectId(
+        artifact_id)))  # type: pymongo.results.DeleteResult
     app.logger.debug(result.raw_result)
     flask.flash(f'Deleted artifact "{artifact_id}"')
     return flask.redirect(flask.url_for('experiment.list_'))

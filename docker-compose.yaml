@@ -1,15 +1,18 @@
 # Development environment
 services:
 
+  # Emulator for Azure Blob Storage
   blob:
     image: mcr.microsoft.com/azure-storage/azurite
 
+  # Azure Cosmo DB emulator
   meta:
     image: mongo
     volumes:
       # Import scripts
       - ./meta:/meta
 
+  # Web app for data entry
   app:
     build:
       context: .
