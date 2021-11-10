@@ -32,6 +32,7 @@ def create():
 
     if flask.request.method == 'POST':
         experiment_id = flask.request.form['experiment_id']
+        container = experiment_id
 
         # Get Azure Blob Storage service client
         service_client = owast.blob.get_service_client()
@@ -40,8 +41,8 @@ def create():
         for name, file in flask.request.files.items():
             try:
                 # Create container (a folder for the experiment)
-                container = service_client.create_container(experiment_id)
-                app.logger.debug(container)
+                container_result = service_client.create_container(container)
+                app.logger.debug(container_result)
             # Ignore if container already exists
             except azure.core.exceptions.ResourceExistsError:
                 pass
@@ -53,11 +54,12 @@ def create():
 
             app.logger.debug(blob_result)
 
-            flask.flash(f'Uploaded "{name}"')
+            flask.flash(f'Uploaded "{file.name}"')
 
             # Add artifact record
             artifact = dict(
                 experiment_id=experiment_id,
+                container=container,
                 meta=owast.utils.get_metadata(),
                 name=file.name,
                 blob=blob_result.copy(),
@@ -84,12 +86,26 @@ def detail(artifact_id: str):
     """
     Show the info for a file
     """
+
+    # Get artifact
     artifact = db.artifacts.find_one(
         dict(_id=bson.objectid.ObjectId(artifact_id)))
     if not artifact:
         raise werkzeug.exceptions.NotFound
-    return app.response_class(bson.json_util.dumps(artifact, indent=2),
-                              mimetype='application/json')
+
+    # Serialise artifact to JSON
+    artifact_json = app.response_class(
+        bson.json_util.dumps(artifact, indent=2),
+        mimetype='application/json')
+
+    # Get blob
+    service_client = owast.blob.get_service_client()
+    blob_client = service_client.get_blob_client(
+        container=artifact['container'], blob=artifact['blob'])
+    blob = blob_client.download_blob()
+
+    return flask.render_template('artifact/detail.html',
+                                 artifact=artifact_json, blob=blob)
 
 
 @blueprint.route('/<string:artifact_id>/delete')
@@ -98,8 +114,21 @@ def delete(artifact_id: str):
     Remove a file
     """
     artifacts = db.artifacts  # type: pymongo.collection.Collection
-    result = artifacts.delete_one(dict(_id=bson.objectid.ObjectId(
-        artifact_id)))  # type: pymongo.results.DeleteResult
+
+    key = dict(_id=bson.objectid.ObjectId(artifact_id))
+
+    # Get artifact
+    artifact = artifacts.find_one(key)
+
+    # Delete blob
+    service_client = owast.blob.get_service_client()
+    blob_client = service_client.get_blob_client(container=artifact[
+        'experiment_id'], blob=artifact['name'])
+    blob_client.delete_blob()
+
+    # Remove artifact
+    result = artifacts.delete_one(key)  # type: pymongo.results.DeleteResult
     app.logger.debug(result.raw_result)
     flask.flash(f'Deleted artifact "{artifact_id}"')
+
     return flask.redirect(flask.url_for('experiment.list_'))

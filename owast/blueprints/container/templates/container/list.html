@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% set title = 'Containers' %}
+{% set icon = 'folder' %}
+{% block content %}
+<ul>
+{% for container in containers %}
+    <li>
+        <a href="{{ url_for('container.detail', container_name=container.name) }}">
+            <i class="bi bi-folder"></i>
+            {{ container.name }}
+        </a>
+    </li>
+{% endfor %}
+</ul>
+{% endblock %}

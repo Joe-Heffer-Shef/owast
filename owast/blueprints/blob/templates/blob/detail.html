@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% set title = 'Blob' %}
+{% set icon = 'file' %}
+{% block content %}
+<dl>
+{% for key, value in blob.items() %}
+    <dt>{{ key }}</dt>
+    <dd><code>{{ value }}</code></dd>
+{% endfor %}
+</dl>
+{% endblock %}

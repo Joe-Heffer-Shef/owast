@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% set title = 'Container' %}
+{% set icon = 'folder' %}
+{% block content %}
+<div class="row">
+    <!-- Container -->
+    <div class="col">
+        <dl>
+        {% for key, value in container.items() %}
+            <dt>{{ key }}</dt>
+            <dd><code>{{ value }}</code></dd>
+        {% endfor %}
+        </dl>
+    </div>
+
+    <!-- Blobs -->
+    <div class="col border border-primary">
+        <h2>Blobs</h2>
+        <ul>
+        {% for blob in blobs %}
+            <li>
+                <a href="{{ url_for('blob.detail', container=container.name, blob=blob.name) }}">
+                    <i class="bi bi-file"></i>
+                    {{ blob.name }}
+                </a>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
