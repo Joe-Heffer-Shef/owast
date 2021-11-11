@@ -10,14 +10,19 @@ blueprint = flask.Blueprint('blob', __name__, url_prefix='/blob',
 service_client = owast.blob.get_service_client()
 
 
+def iter_blobs():
+    for container in service_client.list_containers():
+        container_client = service_client.get_container_client(container)
+        yield from container_client.list_blobs()
+
+
 @blueprint.route('/')
 def list_():
     """
     Show all blobs
     """
-    blobs = service_client.list_blobs()
 
-    return flask.render_template('blob/list.html', blobs=blobs)
+    return flask.render_template('blob/list.html', blobs=iter_blobs())
 
 
 @blueprint.route('/<string:container>/<string:blob>')

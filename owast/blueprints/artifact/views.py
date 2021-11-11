@@ -126,14 +126,21 @@ def delete(artifact_id: str):
     service_client = owast.blob.get_service_client()
     blob_client = service_client.get_blob_client(container=artifact[
         'experiment_id'], blob=artifact['name'])
-    blob_client.delete_blob()
+    # Ignore if already deleted out-of-band
+    try:
+        blob_client.delete_blob()
+    except azure.core.exceptions.ResourceNotFoundError:
+        pass
 
     # Remove artifact
     result = artifacts.delete_one(key)  # type: pymongo.results.DeleteResult
     app.logger.debug(result.raw_result)
     flask.flash(f'Deleted artifact "{artifact_id}"')
 
-    return flask.redirect(flask.url_for('experiment.list_'))
+    # Go to experiment
+    return flask.redirect(
+        flask.url_for('experiment.detail',
+                      experiment_id=artifact['experiment_id']))
 
 
 @blueprint.route('/<string:artifact_id>/download')
