@@ -1,7 +1,10 @@
 {% extends "layout.html" %}
 {% set title = 'Experiments' %}
 {% block content %}
-
+<a class="btn btn-primary" href="{{ url_for('experiment.create') }}">
+    <i class="bi bi-plus-circle-fill"></i>
+    Add Experiment
+</a>
 <ul>
     {% for experiment in experiments %}
     <li>

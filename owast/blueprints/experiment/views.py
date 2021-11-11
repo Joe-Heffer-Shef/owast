@@ -87,7 +87,7 @@ def detail(experiment_id: str):
 
     # Not found
     if not _experiment:
-        flask.flash(f'Experiment ID "{experiment_id}" not found')
+        app.logger.warning(f'Experiment ID "{experiment_id}" not found')
         raise werkzeug.exceptions.NotFound
 
     # Show only certain fields

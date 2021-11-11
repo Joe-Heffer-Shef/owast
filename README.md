@@ -11,6 +11,15 @@ docker scan owast_app
 
 # Usage
 
+## Service management
+
 ```bash
 docker-compose up -d
 ```
+
+## MongoDB shell
+
+```bash
+docker-compose exec meta mongosh
+```
+
