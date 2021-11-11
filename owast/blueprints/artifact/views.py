@@ -1,7 +1,9 @@
-import datetime
-import json
+"""
+Artifact views
+"""
 
 import flask
+import flask_pymongo
 import bson.objectid
 import bson.json_util
 import werkzeug.exceptions
@@ -10,14 +12,12 @@ import azure.core.exceptions
 import pymongo.collection
 import pymongo.results
 
-import owast.database
 import owast.utils
 import owast.blob
 
-app = flask.current_app
+app = flask.current_app  # type: flask_pymongo.PyMongo
 blueprint = flask.Blueprint('artifact', __name__, url_prefix='/artifact',
                             template_folder='templates')
-db = owast.database.get_db()
 
 
 @blueprint.route('/create', methods={'GET', 'POST'})
@@ -48,6 +48,8 @@ def create():
             except azure.core.exceptions.ResourceExistsError:
                 pass
 
+            # Use a transaction so problems are rolled back
+
             # Create blob
             blob_client = service_client.get_blob_client(
                 container=experiment_id, blob=file.filename)
@@ -70,7 +72,12 @@ def create():
                 'content_md5'].hex()
 
             app.logger.info(artifact)
-            db.artifacts.insert_one(artifact)
+            result = app.mongo.db.artifacts.insert_one(
+                artifact)  # type: pymongo.results.InsertOneResult
+
+            # Insert the artifact metadata into the blob metadata
+            blob_client.set_blob_metadata(
+                dict(artifact_id=str(result.inserted_id)))
 
         # Go back to this experiment
         return flask.redirect(
@@ -89,7 +96,7 @@ def detail(artifact_id: str):
     """
 
     # Get artifact
-    artifact = db.artifacts.find_one(
+    artifact = app.mongo.db.artifacts.find_one(
         dict(_id=bson.objectid.ObjectId(artifact_id)))
     if not artifact:
         raise werkzeug.exceptions.NotFound
@@ -109,7 +116,7 @@ def delete(artifact_id: str):
     """
 
     # Get artifact
-    artifacts = db.artifacts  # type: pymongo.collection.Collection
+    artifacts = app.mongo.db.artifacts  # type: pymongo.collection.Collection
     key = dict(_id=bson.objectid.ObjectId(artifact_id))
     artifact = artifacts.find_one(key)
     if not artifact:
@@ -136,14 +143,10 @@ def download(artifact_id: str):
     """
 
     # Get artifact
-    artifacts = db.artifacts  # type: pymongo.collection.Collection
+    artifacts = app.mongo.db.artifacts  # type: pymongo.collection.Collection
     key = dict(_id=bson.objectid.ObjectId(artifact_id))
     artifact = artifacts.find_one(key)
 
-    # Download blob
-    service_client = owast.blob.get_service_client()
-    blob_client = service_client.get_blob_client(container=artifact[
-        'experiment_id'], blob=artifact['name'])
-    downloader = blob_client.download_blob()  # type: azure.storage.blob.StorageStreamDownloader
-
-    return downloader.readall()
+    return flask.redirect(
+        flask.url_for('blob.download', container=artifact['container'],
+                      blob=artifact['name']))

@@ -6,10 +6,18 @@
     <i class="bi bi-folder"></i>
     View Container
 </a>
+<a class="btn btn-primary" href="{{ url_for('artifact.detail', artifact_id=blob.artifact_id) }}">
+    <i class="bi bi-file"></i>
+    View Artifact
+</a>
+<a class="btn btn-primary" href="{{ url_for('blob.download', container=blob.container, blob=blob.name) }}">
+    <i class="bi bi-cloud-download-fill"></i>
+    Download
+</a>
 <dl>
-{% for key, value in blob.items() %}
+    {% for key, value in blob.items() %}
     <dt>{{ key }}</dt>
     <dd><code>{{ value }}</code></dd>
-{% endfor %}
+    {% endfor %}
 </dl>
 {% endblock %}

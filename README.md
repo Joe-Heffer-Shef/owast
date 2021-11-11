@@ -11,6 +11,10 @@ docker scan owast_app
 
 # Usage
 
+```bash
+curl --head http://localhost:8000
+```
+
 ## Service management
 
 ```bash

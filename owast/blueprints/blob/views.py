@@ -10,6 +10,9 @@ service_client = owast.blob.get_service_client()
 
 @blueprint.route('/')
 def list_():
+    """
+    Show all blobs
+    """
     blobs = service_client.list_blobs()
 
     return flask.render_template('blob/list.html', blobs=blobs)
@@ -17,9 +20,25 @@ def list_():
 
 @blueprint.route('/<string:container>/<string:blob>')
 def detail(container: str, blob: str):
+    """
+    Inspect a single blob
+    """
     blob_client = service_client.get_blob_client(
         container=container, blob=blob)
 
     blob = blob_client.get_blob_properties()
 
     return flask.render_template('blob/detail.html', blob=blob)
+
+
+@blueprint.route('/<string:container>/<string:blob>/download')
+def download(container: str, blob: str):
+    """
+    Retrieve data for this file
+    """
+    # Download blob
+    blob_client = service_client.get_blob_client(
+        container=container, blob=blob)
+    downloader = blob_client.download_blob()  # type: azure.storage.blob.StorageStreamDownloader
+
+    return downloader.readall()

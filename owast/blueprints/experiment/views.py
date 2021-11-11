@@ -7,24 +7,23 @@ import uuid
 
 import werkzeug.exceptions
 import flask
+import flask_pymongo
 import pymongo.database
 import pymongo.collection
 import pymongo.results
 import azure.storage.blob
 
-import owast.database
 import owast.utils
 import owast.blob
 
-app = flask.current_app
+app = flask.current_app  # type: flask_pymongo.PyMongo
 blueprint = flask.Blueprint('experiment', __name__, url_prefix='/experiment',
                             template_folder='templates')
-db = owast.database.get_db()
 
 
 @blueprint.route('/')
 def list_():
-    experiments = db.experiments.find()
+    experiments = app.mongo.db.experiments.find()
     return flask.render_template('experiment/list.html',
                                  experiments=experiments)
 
@@ -41,6 +40,8 @@ def create():
         container = experiment_id
 
         # Create container
+        # TODO transaction
+
         service_client = owast.blob.get_service_client()
         container_client = service_client.create_container(
             container)  # type: azure.storage.blob.ContainerClient
@@ -48,7 +49,7 @@ def create():
             dict(experiment_id=experiment_id))
 
         # Get document collection
-        experiments = db.experiments  # type: pymongo.collection.Collection
+        experiments = app.mongo.db.experiments  # type: pymongo.collection.Collection
 
         # Create new experiment record
         experiment = dict(
@@ -83,7 +84,7 @@ def detail(experiment_id: str):
     """
     index = dict(experiment_id=experiment_id)
 
-    _experiment = db.experiments.find_one(index)
+    _experiment = app.mongo.db.experiments.find_one(index)
 
     # Not found
     if not _experiment:
@@ -96,7 +97,7 @@ def detail(experiment_id: str):
                   if not key.startswith('_')}
 
     # Get artifacts for this experiment
-    artifacts = db.artifacts.find(index)
+    artifacts = app.mongo.db.artifacts.find(index)
 
     return flask.render_template('experiment/detail.html',
                                  experiment=experiment, artifacts=artifacts)
@@ -110,7 +111,7 @@ def delete(experiment_id: str):
 
     # Get the experiment record
     key = dict(experiment_id=experiment_id)
-    experiments = db.experiments  # type: pymongo.collection.Collection
+    experiments = app.mongo.db.experiments  # type: pymongo.collection.Collection
     experiment = experiments.find_one(key)
 
     # Remove the container

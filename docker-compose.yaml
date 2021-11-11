@@ -24,4 +24,5 @@ services:
       - 8000:8000
     environment:
       - FLASK_ENV=development
+      - MONGO_URI=mongodb://meta:27017/owast
     restart: always
