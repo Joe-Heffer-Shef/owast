@@ -6,7 +6,7 @@
     <i class="bi bi-folder"></i>
     View Container
 </a>
-<a class="btn btn-primary" href="{{ url_for('artifact.detail', artifact_id=blob.artifact_id) }}">
+<a class="btn btn-primary" href="{{ url_for('artifact.detail', artifact_id=blob.metadata.artifact_id) }}">
     <i class="bi bi-file"></i>
     View Artifact
 </a>

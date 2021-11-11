@@ -1,3 +1,5 @@
+import io
+
 import flask
 
 import owast.blob
@@ -39,6 +41,11 @@ def download(container: str, blob: str):
     # Download blob
     blob_client = service_client.get_blob_client(
         container=container, blob=blob)
+    blob = blob_client.get_blob_properties()
     downloader = blob_client.download_blob()  # type: azure.storage.blob.StorageStreamDownloader
 
-    return downloader.readall()
+    # Send download file
+    data = io.BytesIO(downloader.readall())
+    data.seek(0)
+    return flask.send_file(data, download_name=blob['name'],
+                           mimetype=blob['content_settings']['content_type'])
