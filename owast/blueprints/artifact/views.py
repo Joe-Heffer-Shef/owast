@@ -75,7 +75,7 @@ def create():
         return flask.redirect(
             flask.url_for('experiment.detail', experiment_id=experiment_id))
 
-    time = datetime.datetime.utcnow().replace(microsecond=0).isoformat()
+    time = owast.utils.html_datetime()
     return flask.render_template('artifact/create.html',
                                  experiment_id=flask.request.args[
                                      'experiment_id'], time=time)

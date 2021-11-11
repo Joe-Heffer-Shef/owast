@@ -32,9 +32,10 @@ def list_():
 @blueprint.route('/create', methods={'GET', 'POST'})
 def create():
     """
-    Write new experiment metadata and file upload.
+    Create a new experiment record and the container associated with it.
     """
 
+    # Process form submission
     if flask.request.method == 'POST':
         experiment_id = flask.request.form['experiment_id']
         container = experiment_id
@@ -66,14 +67,16 @@ def create():
                                             experiment_id=experiment[
                                                 'experiment_id']))
 
+    # Default values for form fields
+
     # Default to current time
-    time = datetime.datetime.now().replace(microsecond=0).isoformat()
+    time = owast.utils.html_datetime()
 
     # Default random experiment identifier
     experiment_id = str(uuid.uuid4())
 
-    return flask.render_template('experiment/create.html', time=time,
-                                 experiment_id=experiment_id)
+    return flask.render_template('experiment/create.html',
+                                 time=time, experiment_id=experiment_id)
 
 
 @blueprint.route('/<string:experiment_id>')
