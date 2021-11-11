@@ -2,6 +2,10 @@
 {% set title = 'Container' %}
 {% set icon = 'folder' %}
 {% block content %}
+<a class="btn btn-primary" href="{{ url_for('experiment.detail', experiment_id=container.metadata.experiment_id) }}">
+    <i class="bi bi-align-bottom"></i>
+    View Experiment
+</a>
 <div class="row">
     <!-- Container -->
     <div class="col">

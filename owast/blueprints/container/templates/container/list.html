@@ -5,7 +5,7 @@
 <ul>
 {% for container in containers %}
     <li>
-        <a href="{{ url_for('container.detail', container_name=container.name) }}">
+        <a href="{{ url_for('container.detail', container=container.name) }}">
             <i class="bi bi-folder"></i>
             {{ container.name }}
         </a>
