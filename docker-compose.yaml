@@ -22,7 +22,7 @@ services:
       # Allow editing of files without rebuilding images
       - ./owast:/owast
     ports:
-      - 8000:80
+      - 80:8000
     environment:
       - FLASK_ENV=development
       - MONGO_URI=mongodb://meta:27017/owast
