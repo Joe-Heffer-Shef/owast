@@ -1,4 +1,5 @@
 import datetime
+import json
 
 import flask
 import bson.objectid
@@ -94,18 +95,11 @@ def detail(artifact_id: str):
         raise werkzeug.exceptions.NotFound
 
     # Serialise artifact to JSON
-    artifact_json = app.response_class(
-        bson.json_util.dumps(artifact, indent=2),
-        mimetype='application/json')
-
-    # Get blob
-    service_client = owast.blob.get_service_client()
-    blob_client = service_client.get_blob_client(
-        container=artifact['container'], blob=artifact['blob'])
-    blob = blob_client.download_blob()
+    artifact_json = bson.json_util.dumps(artifact, indent=2)
 
     return flask.render_template('artifact/detail.html',
-                                 artifact=artifact_json, blob=blob)
+                                 artifact=artifact,
+                                 artifact_json=artifact_json)
 
 
 @blueprint.route('/<string:artifact_id>/delete')
@@ -113,12 +107,13 @@ def delete(artifact_id: str):
     """
     Remove a file
     """
-    artifacts = db.artifacts  # type: pymongo.collection.Collection
-
-    key = dict(_id=bson.objectid.ObjectId(artifact_id))
 
     # Get artifact
+    artifacts = db.artifacts  # type: pymongo.collection.Collection
+    key = dict(_id=bson.objectid.ObjectId(artifact_id))
     artifact = artifacts.find_one(key)
+    if not artifact:
+        raise werkzeug.exceptions.NotFound
 
     # Delete blob
     service_client = owast.blob.get_service_client()
@@ -132,3 +127,23 @@ def delete(artifact_id: str):
     flask.flash(f'Deleted artifact "{artifact_id}"')
 
     return flask.redirect(flask.url_for('experiment.list_'))
+
+
+@blueprint.route('/<string:artifact_id>/download')
+def download(artifact_id: str):
+    """
+    Download the artifact file from blob storage
+    """
+
+    # Get artifact
+    artifacts = db.artifacts  # type: pymongo.collection.Collection
+    key = dict(_id=bson.objectid.ObjectId(artifact_id))
+    artifact = artifacts.find_one(key)
+
+    # Download blob
+    service_client = owast.blob.get_service_client()
+    blob_client = service_client.get_blob_client(container=artifact[
+        'experiment_id'], blob=artifact['name'])
+    downloader = blob_client.download_blob()  # type: azure.storage.blob.StorageStreamDownloader
+
+    return downloader.readall()

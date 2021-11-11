@@ -2,12 +2,20 @@
 {% set title = 'Experiment' %}
 {% block content %}
 <div>
+    <a class="btn btn-primary" href="{{ url_for('container.detail', container=experiment.container) }}">
+        <i class="bi bi-folder"></i>
+        View Container
+    </a>
+</div>
+<div>
     <!-- Experiment info -->
     <div>
         <dl>
             {% for key, value in experiment.items() if key != 'meta' %}
             <dt>{{ key }}</dt>
-            <dd>{{ value }}</dd>
+            <dd>
+                <pre>{{ value }}</pre>
+            </dd>
             {% endfor %}
         </dl>
     </div>
@@ -48,9 +56,15 @@
             {% for artifact in artifacts %}
             <li>
                 <a href="{{ url_for('artifact.detail', artifact_id=artifact._id) }}">
-                    {{ artifact._id }}
+                    {{ artifact._id }}</a>
+                <!-- Download -->
+                <a class="btn btn-primary" href="{{ url_for('artifact.download', artifact_id=artifact._id) }}"
+                    title="Download {{ artifact.name }}">
+                    <span class="bi bi-cloud-download-fill"></span>
                 </a>
-                <a href="{{ url_for('artifact.delete', artifact_id=artifact._id) }}">
+                <!-- Delete -->
+                <a class="btn btn-primary" href="{{ url_for('artifact.delete', artifact_id=artifact._id) }}"
+                 title="Delete {{ artifact.name }}">
                     <span class="bi bi-trash-fill"></span>
                 </a>
             </li>

@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% set title = 'Experiments' %}
+{% set icon = 'align-bottom' %}
 {% block content %}
 <a class="btn btn-primary" href="{{ url_for('experiment.create') }}">
     <i class="bi bi-plus-circle-fill"></i>
@@ -8,6 +9,7 @@
 <ul>
     {% for experiment in experiments %}
     <li>
+        <i class="bi bi-align-bottom"></i>
         <a href="{{ url_for('experiment.detail', experiment_id=experiment.experiment_id) }}">
             {{ experiment.experiment_id }}</a>
         <a href="{{ url_for('experiment.delete', experiment_id=experiment.experiment_id) }}">

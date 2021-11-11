@@ -2,6 +2,10 @@
 {% set title = 'Blob' %}
 {% set icon = 'file' %}
 {% block content %}
+<a class="btn btn-primary" href="{{ url_for('container.detail', container=blob.container) }}">
+    <i class="bi bi-folder"></i>
+    View Container
+</a>
 <dl>
 {% for key, value in blob.items() %}
     <dt>{{ key }}</dt>

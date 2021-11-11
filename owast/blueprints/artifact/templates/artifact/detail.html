@@ -1,12 +1,14 @@
 {% extends "layout.html" %}
 {% set title = 'Artifact' %}
 {% block content %}
-<h1>Artifact</h1>
-<pre>
-{{ artifact }}
-</pre>
-<h1>Blob</h1>
-<pre>
-{{ blob }}
-</pre>
+<a class="btn btn-primary" href="{{ url_for('blob.detail', container=artifact.container, blob=artifact.name) }}">
+    <i class="bi bi-file"></i>
+    View Blob
+</a>
+<dl>
+{% for key, value in artifact.items() if not key.startswith('_') %}
+    <dt>{{ key }}</dt>
+    <dd><code>{{ value }}</code></dd>
+{% endfor %}
+</dl>
 {% endblock %}
