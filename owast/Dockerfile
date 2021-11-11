@@ -18,4 +18,3 @@ USER www-data
 # https://docs.gunicorn.org/en/stable/run.html
 # https://docs.gunicorn.org/en/stable/custom.html?highlight=flask#direct-usage-of-existing-wsgi-apps
 CMD ["gunicorn", "--config", "/owast/gunicornconfig.py"]
-#CMD ["python", "-m", "owast"]
