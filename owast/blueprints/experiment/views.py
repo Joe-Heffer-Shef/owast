@@ -67,11 +67,8 @@ def create():
                                             experiment_id=experiment[
                                                 'experiment_id']))
 
-    # Default values for form fields
-
-    # Default to current time
+    # Create default values for form fields
     time = owast.utils.html_datetime()
-
     # Default random experiment identifier
     experiment_id = str(uuid.uuid4())
 
@@ -111,9 +108,16 @@ def delete(experiment_id: str):
     Remove an experiment document
     """
 
-    experiment = dict(experiment_id=experiment_id)
+    # Get the experiment record
+    key = dict(experiment_id=experiment_id)
     experiments = db.experiments  # type: pymongo.collection.Collection
+    experiment = experiments.find_one(key)
 
+    # Remove the container
+    service_client = owast.blob.get_service_client()
+    service_client.delete_container(experiment['container'])
+
+    # Remove experiment record
     result = experiments.delete_one(
         experiment)  # type: pymongo.results.DeleteResult
 
