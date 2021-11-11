@@ -49,19 +49,19 @@ def create():
 
             # Create blob
             blob_client = service_client.get_blob_client(
-                container=experiment_id, blob=file.name)
+                container=experiment_id, blob=file.filename)
             blob_result = blob_client.upload_blob(file, overwrite=True)
 
             app.logger.debug(blob_result)
 
-            flask.flash(f'Uploaded "{file.name}"')
+            flask.flash(f'Uploaded "{file.filename}"')
 
             # Add artifact record
             artifact = dict(
                 experiment_id=experiment_id,
                 container=container,
                 meta=owast.utils.get_metadata(),
-                name=file.name,
+                name=file.filename,
                 blob=blob_result.copy(),
             )
             # Encode MD5-sum as a string
