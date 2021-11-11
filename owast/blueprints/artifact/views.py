@@ -3,7 +3,6 @@ Artifact views
 """
 
 import flask
-import flask_pymongo
 import bson.objectid
 import bson.json_util
 import werkzeug.exceptions
@@ -15,7 +14,7 @@ import pymongo.results
 import owast.utils
 import owast.blob
 
-app = flask.current_app  # type: flask_pymongo.PyMongo
+app = flask.current_app
 blueprint = flask.Blueprint('artifact', __name__, url_prefix='/artifact',
                             template_folder='templates')
 

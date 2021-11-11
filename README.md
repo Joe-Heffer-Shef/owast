@@ -18,6 +18,7 @@ curl --head http://localhost:8000
 ## Service management
 
 ```bash
+# Run services (The default argument is --file docker-compose.yaml)
 docker-compose up -d
 ```
 
