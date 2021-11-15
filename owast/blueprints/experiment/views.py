@@ -16,7 +16,7 @@ import azure.storage.blob
 import owast.utils
 import owast.blob
 
-app = flask.current_app  # type: flask_pymongo.PyMongo
+app = flask.current_app
 blueprint = flask.Blueprint('experiment', __name__, url_prefix='/experiment',
                             template_folder='templates')
 
