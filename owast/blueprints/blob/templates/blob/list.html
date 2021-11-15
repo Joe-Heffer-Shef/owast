@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% set title = 'Blob' %}
+{% set icon = 'file' %}
+{% block content %}
+<ul>
+{% for blob in blobs %}
+    <li>{{ blob }}</li>
+{% endfor %}
+</ul>
+{% endblock %}

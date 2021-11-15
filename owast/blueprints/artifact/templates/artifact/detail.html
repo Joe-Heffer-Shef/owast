@@ -1,12 +1,32 @@
 {% extends "layout.html" %}
 {% set title = 'Artifact' %}
 {% block content %}
-<h1>Artifact</h1>
-<pre>
-{{ artifact }}
-</pre>
-<h1>Blob</h1>
-<pre>
-{{ blob }}
-</pre>
+<div class="actions">
+    <!-- Blob -->
+    <a class="btn btn-primary" href="{{ url_for('experiment.detail', experiment_id=artifact.experiment_id) }}">
+        <i class="bi bi-align-bottom"></i>
+        View Experiment
+    </a>
+    <!-- Delete -->
+    <a class="btn btn-danger" href="{{ url_for('artifact.delete', artifact_id=artifact._id) }}">
+        <i class="bi bi-trash-fill"></i>
+        Delete
+    </a>
+    <!-- Download -->
+    <a class="btn btn-primary" href="{{ url_for('blob.download', container=artifact.container, blob=artifact.name) }}">
+        <i class="bi bi-cloud-download-fill"></i>
+        Download
+    </a>
+    <!-- Blob -->
+    <a class="btn btn-primary" href="{{ url_for('blob.detail', container=artifact.container, blob=artifact.name) }}">
+        <i class="bi bi-file"></i>
+        View Blob
+    </a>
+</div>
+<dl>
+{% for key, value in artifact.items() if not key.startswith('_') %}
+    <dt>{{ key }}</dt>
+    <dd><code>{{ value }}</code></dd>
+{% endfor %}
+</dl>
 {% endblock %}

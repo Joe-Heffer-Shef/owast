@@ -12,5 +12,19 @@ docker scan owast_app
 # Usage
 
 ```bash
+curl --head http://localhost
+```
+
+## Service management
+
+```bash
+# Run services (The default argument is --file docker-compose.yaml)
 docker-compose up -d
 ```
+
+## MongoDB shell
+
+```bash
+docker-compose exec meta mongosh
+```
+

@@ -1,4 +1,6 @@
-import datetime
+"""
+Artifact views
+"""
 
 import flask
 import bson.objectid
@@ -9,14 +11,12 @@ import azure.core.exceptions
 import pymongo.collection
 import pymongo.results
 
-import owast.database
 import owast.utils
 import owast.blob
 
 app = flask.current_app
 blueprint = flask.Blueprint('artifact', __name__, url_prefix='/artifact',
                             template_folder='templates')
-db = owast.database.get_db()
 
 
 @blueprint.route('/create', methods={'GET', 'POST'})
@@ -47,6 +47,8 @@ def create():
             except azure.core.exceptions.ResourceExistsError:
                 pass
 
+            # Use a transaction so problems are rolled back
+
             # Create blob
             blob_client = service_client.get_blob_client(
                 container=experiment_id, blob=file.filename)
@@ -69,13 +71,18 @@ def create():
                 'content_md5'].hex()
 
             app.logger.info(artifact)
-            db.artifacts.insert_one(artifact)
+            result = app.mongo.db.artifacts.insert_one(
+                artifact)  # type: pymongo.results.InsertOneResult
+
+            # Insert the artifact metadata into the blob metadata
+            blob_client.set_blob_metadata(
+                dict(artifact_id=str(result.inserted_id)))
 
         # Go back to this experiment
         return flask.redirect(
             flask.url_for('experiment.detail', experiment_id=experiment_id))
 
-    time = datetime.datetime.utcnow().replace(microsecond=0).isoformat()
+    time = owast.utils.html_datetime()
     return flask.render_template('artifact/create.html',
                                  experiment_id=flask.request.args[
                                      'experiment_id'], time=time)
@@ -88,7 +95,7 @@ def detail(artifact_id: str):
     """
 
     # Get artifact
-    artifact = db.artifacts.find_one(
+    artifact = app.mongo.db.artifacts.find_one(
         dict(_id=bson.objectid.ObjectId(artifact_id)))
     if not artifact:
         raise werkzeug.exceptions.NotFound
@@ -106,7 +113,8 @@ def detail(artifact_id: str):
     blob = blob_client.get_blob_properties()
 
     return flask.render_template('artifact/detail.html',
-                                 artifact=artifact_json, blob=blob)
+                                 artifact=artifact,
+                                 artifact_json=artifact_json)
 
 
 @blueprint.route('/<string:artifact_id>/delete')
@@ -114,22 +122,46 @@ def delete(artifact_id: str):
     """
     Remove a file
     """
-    artifacts = db.artifacts  # type: pymongo.collection.Collection
-
-    key = dict(_id=bson.objectid.ObjectId(artifact_id))
 
     # Get artifact
+    artifacts = app.mongo.db.artifacts  # type: pymongo.collection.Collection
+    key = dict(_id=bson.objectid.ObjectId(artifact_id))
     artifact = artifacts.find_one(key)
+    if not artifact:
+        raise werkzeug.exceptions.NotFound
 
     # Delete blob
     service_client = owast.blob.get_service_client()
     blob_client = service_client.get_blob_client(container=artifact[
         'experiment_id'], blob=artifact['name'])
-    blob_client.delete_blob()
+    # Ignore if already deleted out-of-band
+    try:
+        blob_client.delete_blob()
+    except azure.core.exceptions.ResourceNotFoundError:
+        pass
 
     # Remove artifact
     result = artifacts.delete_one(key)  # type: pymongo.results.DeleteResult
     app.logger.debug(result.raw_result)
     flask.flash(f'Deleted artifact "{artifact_id}"')
 
-    return flask.redirect(flask.url_for('experiment.list_'))
+    # Go to experiment
+    return flask.redirect(
+        flask.url_for('experiment.detail',
+                      experiment_id=artifact['experiment_id']))
+
+
+@blueprint.route('/<string:artifact_id>/download')
+def download(artifact_id: str):
+    """
+    Download the artifact file from blob storage
+    """
+
+    # Get artifact
+    artifacts = app.mongo.db.artifacts  # type: pymongo.collection.Collection
+    key = dict(_id=bson.objectid.ObjectId(artifact_id))
+    artifact = artifacts.find_one(key)
+
+    return flask.redirect(
+        flask.url_for('blob.download', container=artifact['container'],
+                      blob=artifact['name']))

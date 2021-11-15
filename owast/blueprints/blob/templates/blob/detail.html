@@ -9,11 +9,14 @@
     container=blob.container) }}">
         <i class="bi bi-arrow-up"></i> Up
     </a>
-
+    <a class="btn btn-primary" href="{{ url_for('artifact.detail', artifact_id=blob.metadata.artifact_id) }}">
+        <i class="bi bi-file"></i>
+        View Artifact
+    </a>
     <!-- Download -->
-    <a class="btn btn-primary" href="{{ url_for('blob.delete', container=container,
-        blob=blob) }}">
-        <i class="bi bi-download"></i> Download
+    <a class="btn btn-primary" href="{{ url_for('blob.download', container=blob.container, blob=blob.name) }}">
+        <i class="bi bi-cloud-download-fill"></i>
+        Download
     </a>
 
     <!-- Delete -->
@@ -23,9 +26,9 @@
     </a>
 </div>
 <dl>
-{% for key, value in blob.items() %}
+    {% for key, value in blob.items() %}
     <dt>{{ key }}</dt>
     <dd><code>{{ value }}</code></dd>
-{% endfor %}
+    {% endfor %}
 </dl>
 {% endblock %}
