@@ -5,7 +5,6 @@ Artifact views
 import flask
 import bson.objectid
 import bson.json_util
-import werkzeug.exceptions
 import azure.storage.blob
 import azure.core.exceptions
 import pymongo.collection
@@ -95,10 +94,7 @@ def detail(artifact_id: str):
     """
 
     # Get artifact
-    artifact = app.mongo.db.artifacts.find_one(
-        dict(_id=bson.objectid.ObjectId(artifact_id)))
-    if not artifact:
-        raise werkzeug.exceptions.NotFound
+    artifact = app.mongo.db.artifacts.find_one_or_404(dict(_id=artifact_id))
 
     # Serialise artifact to JSON
     artifact_json = app.response_class(
@@ -125,10 +121,8 @@ def delete(artifact_id: str):
 
     # Get artifact
     artifacts = app.mongo.db.artifacts  # type: pymongo.collection.Collection
-    key = dict(_id=bson.objectid.ObjectId(artifact_id))
-    artifact = artifacts.find_one(key)
-    if not artifact:
-        raise werkzeug.exceptions.NotFound
+    key = dict(_id=artifact_id)
+    artifact = artifacts.find_one_or_404(key)
 
     # Delete blob
     service_client = owast.blob.get_service_client()
