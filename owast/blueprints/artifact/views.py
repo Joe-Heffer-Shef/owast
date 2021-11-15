@@ -59,6 +59,7 @@ def create():
 
             # Add artifact record
             artifact = dict(
+                # TODO use real ObjectId of the experiment
                 experiment_id=experiment_id,
                 container=container,
                 meta=owast.utils.get_metadata(),
@@ -94,7 +95,8 @@ def detail(artifact_id: str):
     """
 
     # Get artifact
-    artifact = app.mongo.db.artifacts.find_one_or_404(dict(_id=artifact_id))
+    artifact = app.mongo.db.artifacts.find_one_or_404(
+        dict(_id=bson.objectid.ObjectId(artifact_id)))
 
     # Serialise artifact to JSON
     artifact_json = app.response_class(
@@ -121,7 +123,7 @@ def delete(artifact_id: str):
 
     # Get artifact
     artifacts = app.mongo.db.artifacts  # type: pymongo.collection.Collection
-    key = dict(_id=artifact_id)
+    key = dict(_id=bson.objectid.ObjectId(artifact_id))
     artifact = artifacts.find_one_or_404(key)
 
     # Delete blob

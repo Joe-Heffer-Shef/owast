@@ -87,12 +87,7 @@ def detail(experiment_id: str):
     """
     index = dict(experiment_id=experiment_id)
 
-    _experiment = app.mongo.db.experiments.find_one(index)
-
-    # Not found
-    if not _experiment:
-        app.logger.warning(f'Experiment ID "{experiment_id}" not found')
-        raise werkzeug.exceptions.NotFound
+    _experiment = app.mongo.db.experiments.find_one_or_404(index)
 
     # Show only certain fields
     experiment = {key: value for key, value in _experiment.items()

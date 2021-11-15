@@ -21,6 +21,9 @@ services:
       - "81:8081"
     environment:
       - ME_CONFIG_MONGODB_SERVER=meta
+    depends_on:
+      - meta
+    restart: always
 
   # Web app for data entry user interface
   app:
