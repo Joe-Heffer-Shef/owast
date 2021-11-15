@@ -39,6 +39,9 @@ def create():
         experiment_id = flask.request.form['experiment_id']
         container = experiment_id
 
+        # TODO validate container name
+        # https://docs.microsoft.com/en-us/rest/api/storageservices/naming-and-referencing-containers--blobs--and-metadata
+
         # Create container
         # TODO transaction
 

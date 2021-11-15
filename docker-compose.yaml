@@ -7,13 +7,22 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite
 
   # Emulator for Azure Cosmo DB
+  # This is a document-store (NoSQL) database
   meta:
     image: mongo
     volumes:
       # Import scripts
       - ./meta:/meta
 
-  # Web app for data entry
+  # Web interface to view the MongoDB instance
+  meta-admin:
+    image: mongo-express
+    ports:
+      - "81:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=meta
+
+  # Web app for data entry user interface
   app:
     build:
       context: .
@@ -22,7 +31,7 @@ services:
       # Allow editing of files without rebuilding images
       - ./owast:/owast
     ports:
-      - 80:8000
+      - "80:8000"
     environment:
       - FLASK_ENV=development
       - MONGO_URI=mongodb://meta:27017/owast
