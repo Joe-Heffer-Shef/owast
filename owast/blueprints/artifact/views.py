@@ -107,7 +107,7 @@ def detail(artifact_id: str):
     service_client = owast.blob.get_service_client()
     app.logger.info(artifact['blob'])
     blob_client = service_client.get_blob_client(
-        container=artifact['container'], blob=artifact['blob']['name'])
+        container=artifact['container'], blob=artifact['name'])
     blob = blob_client.get_blob_properties()
 
     return flask.render_template('artifact/detail.html',
