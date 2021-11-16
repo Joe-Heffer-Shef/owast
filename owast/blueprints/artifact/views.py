@@ -103,13 +103,6 @@ def detail(artifact_id: str):
         bson.json_util.dumps(artifact, indent=2),
         mimetype='application/json')
 
-    # Get blob
-    service_client = owast.blob.get_service_client()
-    app.logger.info(artifact['blob'])
-    blob_client = service_client.get_blob_client(
-        container=artifact['container'], blob=artifact['name'])
-    blob = blob_client.get_blob_properties()
-
     return flask.render_template('artifact/detail.html',
                                  artifact=artifact,
                                  artifact_json=artifact_json)
