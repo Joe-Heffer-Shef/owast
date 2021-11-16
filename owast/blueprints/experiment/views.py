@@ -5,9 +5,8 @@ Experiment views
 import datetime
 import uuid
 
-import werkzeug.exceptions
+import bson
 import flask
-import flask_pymongo
 import pymongo.database
 import pymongo.collection
 import pymongo.results
@@ -23,7 +22,11 @@ blueprint = flask.Blueprint('experiment', __name__, url_prefix='/experiment',
 
 @blueprint.route('/')
 def list_():
-    experiments = app.mongo.db.experiments.find()
+    """
+    Show experiments
+    """
+    # Get all experiments, except deleted ones
+    experiments = app.mongo.db.experiments.find(dict(deleted=False))
     return flask.render_template('experiment/list.html',
                                  experiments=experiments)
 
@@ -62,6 +65,7 @@ def create():
                 flask.request.form['start_time']),
             meta=owast.utils.get_metadata(),
             container=container,
+            deleted=False,
         )
         experiments.insert_one(experiment)
 
@@ -104,23 +108,14 @@ def detail(experiment_id: str):
 @blueprint.route('/<string:experiment_id>/delete')
 def delete(experiment_id: str):
     """
-    Remove an experiment document
+    Delete an experiment i.e. set deleted attribute to true.
     """
 
-    # Get the experiment record
     key = dict(experiment_id=experiment_id)
     experiments = app.mongo.db.experiments  # type: pymongo.collection.Collection
-    experiment = experiments.find_one(key)
-
-    # Remove the container
-    service_client = owast.blob.get_service_client()
-    service_client.delete_container(experiment['container'])
-
-    # Remove experiment record
-    result = experiments.delete_one(
-        experiment)  # type: pymongo.results.DeleteResult
-
-    app.logger.info(result.raw_result)
+    update_result = experiments.update_one(key, {
+        '$set': dict(deleted=True)})  # type: pymongo.results.UpdateResult
+    app.logger.debug(update_result.raw_result)
 
     flask.flash(f'Deleted experiment "{experiment_id}"')
 

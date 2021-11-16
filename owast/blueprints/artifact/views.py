@@ -51,9 +51,7 @@ def create():
             # Create blob
             blob_client = service_client.get_blob_client(
                 container=experiment_id, blob=file.filename)
-            blob_result = blob_client.upload_blob(file, overwrite=True)
-
-            app.logger.debug(blob_result)
+            blob_client.upload_blob(file, overwrite=True)
 
             flask.flash(f'Uploaded "{file.filename}"')
 
@@ -64,11 +62,7 @@ def create():
                 container=container,
                 meta=owast.utils.get_metadata(),
                 name=file.filename,
-                blob=blob_result.copy(),
             )
-            # Encode MD5-sum as a string
-            artifact['blob']['content_md5'] = artifact['blob'][
-                'content_md5'].hex()
 
             app.logger.info(artifact)
             result = app.mongo.db.artifacts.insert_one(
