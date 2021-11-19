@@ -1,11 +1,10 @@
 import logging
 import os
-import uuid
 import datetime
 
 import pymodm.connection
 
-import meta.models.activity
+from meta.models.prov.activity import Activity
 
 CONNECTION_STRING = os.environ['MONGO_URI']
 
@@ -19,7 +18,7 @@ def main():
 
     end_time = datetime.datetime.utcnow()
 
-    experiment = meta.models.activity.Activity(
+    experiment = Activity(
         attributes=dict(
             drill_type='steel',
             speed=100,
