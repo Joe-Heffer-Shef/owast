@@ -32,7 +32,8 @@ services:
       dockerfile: owast/Dockerfile
     volumes:
       # Allow editing of files without rebuilding images
-      - ./owast:/owast
+      - ./owast:/opt/owast/owast
+      - ./meta:/opt/owast/meta
     ports:
       - "80:8000"
     environment:
@@ -40,7 +41,7 @@ services:
       - MONGO_URI=mongodb://meta:27017/owast
       - BIND=0.0.0.0:8000
       - WSGI_APP=owast.app_factory:create_app()
-      - CHDIR=/
+      - CHDIR=/opt/owast
       # Auto-reload upon code change
       - RELOAD=True
     restart: always
