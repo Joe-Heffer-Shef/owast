@@ -13,20 +13,20 @@ import azure.storage.blob
 
 import owast.utils
 import owast.blob
-from meta.models.prov.activity import Activity
 
 app = flask.current_app
 blueprint = flask.Blueprint('experiment', __name__, url_prefix='/experiment',
                             template_folder='templates')
 
 
+# Don't use the name 'list' because this is an in-built function
 @blueprint.route('/')
 def list_():
     """
     Show experiments
     """
     # Get all experiments
-    experiments = Activity.find(dict(attributes=dict(type='owast:experiment')))
+    experiments = app.mongo.db.experiments.find()
     return flask.render_template('experiment/list.html',
                                  experiments=experiments)
 

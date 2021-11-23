@@ -2,7 +2,7 @@ import os
 import secrets
 
 import flask
-import pymodm
+import flask_pymongo
 
 
 def create_app(*args, **kwargs) -> flask.Flask:
@@ -18,14 +18,16 @@ def create_app(*args, **kwargs) -> flask.Flask:
     # Generate random secret key
     app.secret_key = secrets.token_urlsafe()
 
-    # Connect to metadata
-    pymodm.connect(os.environ['MONGO_URI'])
+    # Configure NoSQL database
+    app.config['MONGO_URI'] = os.environ['MONGO_URI']
+    app.mongo = flask_pymongo.PyMongo(app)
 
     return app
 
 
 def register_blueprints(app: flask.Flask):
     """
+    Load modular application
     https://flask.palletsprojects.com/en/2.0.x/blueprints/
     """
 
