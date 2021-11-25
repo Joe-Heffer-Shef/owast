@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% set title = 'Add Tool' %}
+{% set icon = 'tools' %}
+{% block content %}
+<p>
+    Enter the details of the tool below.
+</p>
+<form action="{{ url_for(request.endpoint) }}" method="post">
+    <!-- Tool code -->
+    <div>
+        <label for="code" class="form-label">Tool Code</label>
+        <input type="text" class="form-control" name="code" id="code" required autocomplete="off" value="{{ code }}">
+    </div>
+
+    <!-- Vericut tool number -->
+    <div>
+        <label for="vericut_number" class="form-label">Vericut tool number</label>
+        <input type="number" class="form-control" name="vericut_number" id="vericut_number" autocomplete="off" value="{{ vericut_number }}" min="1">
+    </div>
+
+    <!-- Serial number -->
+    <div>
+        <label for="serial_number" class="form-label">Serial number</label>
+        <input type="text" class="form-control" name="serial_number" id="serial_number" autocomplete="off" value="{{ serial_number }}">
+    </div>
+
+    <!-- Suppler -->
+    <div>
+        <label for="supplier" class="form-label">Supplier</label>
+        <input type="text" class="form-control" name="supplier" id="supplier" value="{{ supplier }}" list="suppliers">
+        <datalist id="suppliers">
+            <option value="OSG">
+            <option value="Sumitomo">
+            <option value="Sandvik">
+        </datalist>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">
+        <i class="bi bi-plus-circle-fill"></i>
+        Add
+    </button>
+</form>
+{% endblock %}

@@ -36,9 +36,11 @@ def register_blueprints(app: flask.Flask):
     import owast.blueprints.artifact.views
     import owast.blueprints.container.views
     import owast.blueprints.blob.views
+    import owast.blueprints.tool.views
 
     app.register_blueprint(owast.blueprints.main.views.blueprint)
     app.register_blueprint(owast.blueprints.experiment.views.blueprint)
     app.register_blueprint(owast.blueprints.artifact.views.blueprint)
     app.register_blueprint(owast.blueprints.container.views.blueprint)
     app.register_blueprint(owast.blueprints.blob.views.blueprint)
+    app.register_blueprint(owast.blueprints.tool.views.blueprint)

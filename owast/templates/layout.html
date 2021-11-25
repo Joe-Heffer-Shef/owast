@@ -14,17 +14,39 @@
 
 <body>
 
+<div class="p-5">
+  <img src="{{ url_for('static', filename='images/amrc-logo.png') }}" alt="The University of Sheffield Advanced Manufacturing Research Centre" width="500em">
+  <h1>
+    OWAST database
+  </h1>
+</div>
+
 <!-- Menu -->
 <nav class="navbar navbar-expand-lg" role="navigation">
   <ul class="navbar-nav bg-light">
     <li class="nav-item">
-      <a class="nav-link" href="/">Home</a>
+      <a class="nav-link" href="/">
+        <span class="bi bi-house"></span>
+        Home
+      </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="{{ url_for('experiment.list_') }}">Experiments</a>
+      <a class="nav-link" href="{{ url_for('experiment.list_') }}">
+        <span class="bi bi-align-bottom"></span>
+        Experiments
+      </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="{{ url_for('container.list_') }}">Containers</a>
+      <a class="nav-link" href="{{ url_for('tool.list_') }}">
+        <span class="bi bi-tools"></span>
+        Tools
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('container.list_') }}">
+        <span class="bi bi-folder"></span>
+        Containers
+      </a>
     </li>
   </ul>
 </nav>

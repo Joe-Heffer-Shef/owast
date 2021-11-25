@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% set title = 'Tools' %}
+{% set icon = 'tools' %}
+{% block content %}
+<a class="btn btn-primary" href="{{ url_for('tool.create') }}">
+    <i class="bi bi-plus-circle-fill"></i>
+    Add Tool
+</a>
+<ul>
+    {% for tool in tools %}
+    <li>
+        <i class="bi bi-align-bottom"></i>
+        <a href="{{ url_for('tool.detail', tool_id=tool.tool_id) }}">
+            {{ tool.tool_id }}</a>
+        <a class="btn btn-danger" href="{{ url_for('tool.delete', tool_id=tool.tool_id) }}"
+            title="Delete {{ tool.tool_id }}">
+            <span class="bi bi-trash-fill"></span>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

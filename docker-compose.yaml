@@ -6,8 +6,10 @@ services:
   blob:
     image: mcr.microsoft.com/azure-storage/azurite
 
-  # Emulator for Azure Cosmo DB
-  # This is a document-store (NoSQL) database
+  # Emulator for Azure Cosmo DB document-store (NoSQL) database.
+  # There is also an emulator for the Azure service, which currently only supports the SQL API:
+  # https://docs.microsoft.com/en-us/azure/cosmos-db/linux-emulator?tabs=ssl-netstd21
+  # This has more of the features of the real Azure service
   meta:
     image: mongo
     volumes:
@@ -39,9 +41,11 @@ services:
     environment:
       - FLASK_ENV=development
       - MONGO_URI=mongodb://meta:27017/owast
+      # Gunicorn options
       - BIND=0.0.0.0:8000
       - WSGI_APP=owast.app_factory:create_app()
       - CHDIR=/opt/owast
       # Auto-reload upon code change
       - RELOAD=True
+      - GUNICORN_CMD_ARGS=--log-level debug
     restart: always

@@ -29,4 +29,4 @@ print_config = bool(
 # https://docs.gunicorn.org/en/stable/settings.html#logging
 accesslog = os.getenv('ACCESSLOG', '-')  # stdout
 errorlog = os.getenv('ERRORLOG', '-')  # stdout
-loglevel = os.getenv('LOGLEVEL', 'debug')
+loglevel = os.getenv('LOGLEVEL', 'info')
