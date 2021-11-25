@@ -3,6 +3,7 @@ import secrets
 
 import flask
 import flask_pymongo
+import flask_talisman
 
 
 def create_app(*args, **kwargs) -> flask.Flask:
@@ -22,6 +23,9 @@ def create_app(*args, **kwargs) -> flask.Flask:
     app.config['MONGO_URI'] = os.environ['MONGO_URI']
     app.mongo = flask_pymongo.PyMongo(app)
 
+    # Security plugin
+    flask_talisman.Talisman(app)
+
     return app
 
 
@@ -39,6 +43,7 @@ def register_blueprints(app: flask.Flask):
     import owast.blueprints.tool.views
     import owast.blueprints.option.views
     import owast.blueprints.service.views
+    import owast.blueprints.settings.views
 
     app.register_blueprint(owast.blueprints.main.views.blueprint)
     app.register_blueprint(owast.blueprints.experiment.views.blueprint)
@@ -48,3 +53,4 @@ def register_blueprints(app: flask.Flask):
     app.register_blueprint(owast.blueprints.tool.views.blueprint)
     app.register_blueprint(owast.blueprints.option.views.blueprint)
     app.register_blueprint(owast.blueprints.service.views.blueprint)
+    app.register_blueprint(owast.blueprints.settings.views.blueprint)
