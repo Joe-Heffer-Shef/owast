@@ -49,3 +49,7 @@ services:
       - RELOAD=True
       - GUNICORN_CMD_ARGS=--log-level debug
     restart: always
+
+  # Mock Active Directory
+  #auth:
+  #  image: bitnami/openldap:2.4

@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% set title = 'Service Status' %}
+{% set icon = 'activity' %}
+{% block content %}
+<dl>
+    {% for service in services %}
+    <dt>
+        <span class="bi bi-lightbulb-fill" style="color: {% if service.status %}green{% else %}red{% endif %};"></span>
+            {{ service.name }}
+    </dt>
+    <dd><code>{{ service.status or 'Could not connect' }}</code></dd>
+    {% endfor %}
+</dl>
+{% endblock %}

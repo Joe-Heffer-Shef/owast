@@ -22,6 +22,12 @@ curl --head http://localhost
 docker-compose up -d
 ```
 
+Logs
+
+```bash
+docker-compose logs --tail 100 -ft
+```
+
 ## MongoDB shell
 
 ```bash
