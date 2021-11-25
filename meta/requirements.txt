@@ -1,2 +1,0 @@
-# Object Document Mapping
-pymodm~=0.4
