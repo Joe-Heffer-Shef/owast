@@ -1,8 +1,16 @@
 // Add new value input
 function addValue() {
-    console.log('addValue()')
     let values = document.getElementById('values');
-    console.log(values)
+    // Count current input fields
+    let x = values.getElementsByTagName('input').length;
+
+    // Create new input field
+    let new_input = document.createElement('input');
+    new_input.type = 'text';
+    new_input.name = 'value_' + x;
+    new_input.className = 'form-control';
+
+    values.appendChild(new_input);
 }
 
 

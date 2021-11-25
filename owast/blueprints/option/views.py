@@ -5,12 +5,11 @@ blueprint = flask.Blueprint('option', __name__, url_prefix='/option',
                             template_folder='templates')
 
 
-@blueprint.route('/create')
+@blueprint.route('/create', methods={'get', 'post'})
 def create():
     return flask.render_template('option/create.html')
 
 
-# TODO use ObjectId converter
 @blueprint.route('/<string:option_id>')
 def detail(option_id):
     option = app.db.options.find_one_or_404(dict(_id=option_id))
