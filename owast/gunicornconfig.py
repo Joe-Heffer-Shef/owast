@@ -30,3 +30,5 @@ print_config = bool(
 accesslog = os.getenv('ACCESSLOG', '-')  # stdout
 errorlog = os.getenv('ERRORLOG', '-')  # stdout
 loglevel = os.getenv('LOGLEVEL', 'info')
+
+# TODO security config

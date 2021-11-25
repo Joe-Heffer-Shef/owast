@@ -10,19 +10,21 @@
 
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/bootstrap-icons.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
 
 <body>
 
 <div class="p-5">
-  <img src="{{ url_for('static', filename='images/amrc-logo.png') }}" alt="The University of Sheffield Advanced Manufacturing Research Centre" width="500em">
+  <img class="img-fluid" src="{{ url_for('static', filename='images/amrc-logo.png') }}"
+       alt="The University of Sheffield Advanced Manufacturing Research Centre" width="500">
   <h1>
     OWAST database
   </h1>
 </div>
 
 <!-- Menu -->
-<nav class="navbar navbar-expand-lg" role="navigation">
+<nav class="navbar navbar-expand-lg">
   <ul class="navbar-nav bg-light">
     <li class="nav-item">
       <a class="nav-link" href="/">
@@ -49,7 +51,7 @@
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="{{ url_for('option.list_') }}">
+      <a class="nav-link" href="{{ url_for('settings.settings') }}">
         <span class="bi bi-gear-fill"></span>
         Settings
       </a>

@@ -4,6 +4,7 @@ import secrets
 import flask
 import flask_pymongo
 import flask_talisman
+import flask_seasurf
 
 
 def create_app(*args, **kwargs) -> flask.Flask:
@@ -24,7 +25,11 @@ def create_app(*args, **kwargs) -> flask.Flask:
     app.mongo = flask_pymongo.PyMongo(app)
 
     # Security plugin
-    flask_talisman.Talisman(app)
+    flask_talisman.Talisman(app,
+                            content_security_policy_nonce_in="['script-src']")
+
+    # Cross-site request forgery (CSRF) protection
+    flask_seasurf.SeaSurf(app)
 
     return app
 

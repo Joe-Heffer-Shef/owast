@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% set title = 'Options' %}
+{% set icon = 'option' %}
+{% block content %}
+<a class="btn btn-primary" href="{{ url_for('option.create') }}">
+    <i class="bi bi-plus-circle-fill"></i>
+    Add option
+</a>
+<ul>
+    {% for option in options %}
+    <li>
+        <i class="bi bi-align-bottom"></i>
+        <a href="{{ url_for('option.detail', option_id=option.option_id) }}">
+            {{ option.option_id }}</a>
+        <a class="btn btn-danger" href="{{ url_for('option.delete', option_id=option.option_id) }}"
+            title="Delete {{ option.option_id }}">
+            <span class="bi bi-trash-fill"></span>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

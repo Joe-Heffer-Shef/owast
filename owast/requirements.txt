@@ -3,4 +3,5 @@ azure-storage-blob~=12.9
 pymongo~=3.12
 Flask-PyMongo~=2.3
 flask-talisman
+Flask-SeaSurf
 gunicorn
