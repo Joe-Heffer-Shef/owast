@@ -47,7 +47,9 @@ services:
       - CHDIR=/opt/owast
       # Auto-reload upon code change
       - RELOAD=True
-      - GUNICORN_CMD_ARGS=--log-level debug
+      - GUNICORN_CMD_ARGS=--log-level debug --timeout 5
+      # Blob storage settings
+      - BLOB_ENDPOINT=http://blob:10000/devstoreaccount1
     restart: always
 
   # Mock Active Directory
