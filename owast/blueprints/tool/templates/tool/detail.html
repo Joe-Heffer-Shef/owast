@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% set title = 'Tools' %}
+{% set icon = 'tools' %}
+{% block content %}
+<div>
+    <a class="btn btn-danger" href="{{ url_for('tool.delete', tool_id=tool._id) }}"
+       title="Delete {{ tool._id }}">
+        <span class="bi bi-trash-fill"></span> Delete
+    </a>
+</div>
+
+<dl>
+{% for key, value in tool.items() if not key.startswith('_') %}
+    <dt>{{ key }}</dt>
+    <dd><code>{{ value|tojson }}</code></dd>
+{% endfor %}
+</dl>
+{% endblock %}
