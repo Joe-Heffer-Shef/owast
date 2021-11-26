@@ -60,7 +60,7 @@ def delete(option_id: ObjectId):
 
 
 @blueprint.route('/<ObjectId:option_id>/edit')
-def detail(option_id: ObjectId):
+def edit(option_id: ObjectId):
     """
     Edit the values of this option
     """
