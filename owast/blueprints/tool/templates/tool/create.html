@@ -9,31 +9,35 @@
     <!-- Tool code -->
     <div>
         <label for="code" class="form-label">Tool Code</label>
-        <input type="text" class="form-control" name="code" id="code" required autocomplete="off" value="{{ code }}">
+        <input type="text" class="form-control" name="code" id="code" required autocomplete="off">
     </div>
 
     <!-- Vericut tool number -->
     <div>
         <label for="vericut_number" class="form-label">Vericut tool number</label>
-        <input type="number" class="form-control" name="vericut_number" id="vericut_number" autocomplete="off" value="{{ vericut_number }}" min="1">
+        <input type="number" class="form-control" name="vericut_number" id="vericut_number" autocomplete="off" min="1">
     </div>
 
     <!-- Serial number -->
     <div>
         <label for="serial_number" class="form-label">Serial number</label>
-        <input type="text" class="form-control" name="serial_number" id="serial_number" autocomplete="off" value="{{ serial_number }}">
+        <input type="text" class="form-control" name="serial_number" id="serial_number" autocomplete="off">
     </div>
 
-    <!-- Suppler -->
+    <!-- Options -->
+    {% for option in options %}
+    <!-- {{ option.name }} -->
     <div>
-        <label for="supplier" class="form-label">Supplier</label>
-        <input type="text" class="form-control" name="supplier" id="supplier" value="{{ supplier }}" list="suppliers">
-        <datalist id="suppliers">
-            <option value="OSG">
-            <option value="Sumitomo">
-            <option value="Sandvik">
+        <label for="{{ option.name }}" class="form-label">{{ option.name }}</label>
+        <input type="text" class="form-control" name="{{ option.name }}"
+               id="{{ option.name }}" list="{{ option._id }}">
+        <datalist id="{{ option._id }}">
+            {% for value in option['values'] -%}
+            <option value="{{ value }}">
+            {% endfor %}
         </datalist>
     </div>
+    {% endfor %}
 
     <button type="submit" class="btn btn-primary mt-3">
         <i class="bi bi-plus-circle-fill"></i>

@@ -7,7 +7,9 @@ blueprint = flask.Blueprint('tool', __name__, url_prefix='/tool',
 
 @blueprint.route('/create')
 def create():
-    return flask.render_template('tool/create.html')
+    option_names = {'Supplier'}
+    options = app.mongo.db.options.find(dict(name={'$in': list(option_names)}))
+    return flask.render_template('tool/create.html', options=options)
 
 
 # TODO use ObjectId converter
