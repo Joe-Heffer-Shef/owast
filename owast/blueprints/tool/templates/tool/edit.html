@@ -1,11 +1,8 @@
 {% extends "layout.html" %}
-{% set title = 'Add Tool' %}
+{% set title = 'Edit Tool' %}
 {% set icon = 'tools' %}
 {% block content %}
-<p>
-    Enter the details of the tool below.
-</p>
-<form method="post" action="{{ url_for(request.endpoint) }}">
+<form method="post" action="{{ url_for(request.endpoint, tool_id=tool._id) }}">
     {{ form.csrf_token }}
     {% include 'form_fields.html' %}
 
@@ -26,8 +23,8 @@
 
     <!-- Submit button -->
     <button type="submit" class="btn btn-primary mt-3">
-        Submit
-        <i class="bi bi-caret-right-fill"></i>
+        Save
+        <i class="bi bi-save"></i>
     </button>
 </form>
 {% endblock %}

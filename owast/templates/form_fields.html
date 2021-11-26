@@ -1,0 +1,9 @@
+<!-- Fields -->
+{% for field in form if field.id != 'csrf_token' -%}
+<div class="mb-2">
+    <!-- Field: {{ field.name }} -->
+    {{ field.label(class=label_class.get(field.__class__.__name__, 'form-label')) }}
+    {{ field(class=field_class.get(field.__class__.__name__, 'form-control')) }}
+    <span class="form-text">{{ field.description }}</span>
+</div>
+{% endfor -%}

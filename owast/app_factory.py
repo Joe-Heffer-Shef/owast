@@ -3,7 +3,19 @@ import os
 import flask
 import flask_pymongo
 import flask_talisman
-import flask_seasurf
+
+# Maps Bootstrap class for WTFforms field classe
+FIELD_CLASS = {
+    'Field': 'form-control',
+    'StringField': 'form-control',
+    'BooleanField': 'form-check-control',
+    'SelectField': 'form-select',
+}
+LABEL_CLASS = {
+    'Field': 'form-label',
+    'StringField': 'form-label',
+    'BooleanField': 'form-check-label',
+}
 
 
 def create_app(*args, **kwargs) -> flask.Flask:
@@ -20,15 +32,16 @@ def create_app(*args, **kwargs) -> flask.Flask:
     flask_talisman.Talisman(app,
                             content_security_policy_nonce_in="['script-src']")
 
-    # Cross-site request forgery (CSRF) protection
-    flask_seasurf.SeaSurf(app)
-
     # Configure NoSQL database
     app.config['MONGO_URI'] = os.environ['MONGO_URI']
     app.mongo = flask_pymongo.PyMongo(app)
 
     # TODO LDAP authentication (Active Directory)
+
     register_blueprints(app)
+
+    app.context_processor(
+        lambda: dict(label_class=LABEL_CLASS, field_class=FIELD_CLASS))
 
     return app
 

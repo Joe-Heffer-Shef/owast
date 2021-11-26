@@ -3,8 +3,13 @@
 {% set icon = 'tools' %}
 {% block content %}
 <div>
-    <a class="btn btn-danger" href="{{ url_for('tool.delete', tool_id=tool._id) }}"
-       title="Delete {{ tool._id }}">
+    <!-- Edit -->
+    <a class="btn btn-success" href="{{ url_for('tool.edit', tool_id=tool._id) }}">
+        <span class="bi bi-pencil-fill"></span> Edit
+    </a>
+
+    <!-- Delete -->
+    <a class="btn btn-danger" href="{{ url_for('tool.delete', tool_id=tool._id) }}">
         <span class="bi bi-trash-fill"></span> Delete
     </a>
 </div>
