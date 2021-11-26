@@ -1,0 +1,15 @@
+# YAML 1.2
+---
+authors:
+  - affiliation: "The University of Sheffield"
+    family-names: Heffer
+    given-names: "Joe Salvador Thornhill"
+    orcid: "https://orcid.org/0000-0001-8733-1117"
+  - affiliation: "The University of Sheffield"
+    family-names: Wild
+    given-names: "Christopher"
+cff-version: "1.1.0"
+message: "If you use this software, please cite it as below."
+version: 0.0.1
+date-released: 2021-08-12
+...
