@@ -6,9 +6,12 @@ function addValue() {
 
     // Create new input field
     let new_input = document.createElement('input');
+    let newName = 'value_' + x;
     new_input.type = 'text';
-    new_input.name = 'value_' + x;
     new_input.className = 'form-control';
+    new_input.name = newName;
+    new_input.id = newName;
+    new_input.required = true;
 
     values.appendChild(new_input);
 }

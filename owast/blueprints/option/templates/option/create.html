@@ -22,13 +22,13 @@
     </div>
 
     <!-- Add new value button -->
-    <button class="btn btn-success" id="add-value" type="button">
+    <button type="button" class="btn btn-success" id="add-value">
         <span class="bi bi-plus-circle-fill"></span>
         Add value
     </button>
 
     <!-- Delete value -->
-    <button type="button" class="btn btn-danger" id="delete">
+    <button type="button" class="btn btn-danger" id="delete-value">
         <span class="bi bi-trash-fill"></span>
         Remove value
     </button>
@@ -43,5 +43,6 @@
 </form>
 
 <script src="{{ url_for('static', filename='scripts/add_value.js') }}" nonce="{{ csp_nonce() }}"></script>
+<script src="{{ url_for('static', filename='scripts/delete_value.js') }}" nonce="{{ csp_nonce() }}"></script>
 
 {% endblock %}
