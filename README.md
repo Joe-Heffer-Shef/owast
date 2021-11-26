@@ -34,3 +34,10 @@ docker-compose logs --tail 100 -ft
 docker-compose exec meta mongosh
 ```
 
+# Maintenance
+
+Check out outdated packages
+
+```bash
+docker-compose exec app pip list --outdated
+```

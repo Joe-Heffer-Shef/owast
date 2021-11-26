@@ -12,6 +12,7 @@ function addValue() {
     new_input.name = newName;
     new_input.id = newName;
     new_input.required = true;
+    new_input.autocomplete = "off";
 
     values.appendChild(new_input);
 }

@@ -1,5 +1,4 @@
 import os
-import secrets
 
 import flask
 import flask_pymongo
@@ -13,16 +12,9 @@ def create_app(*args, **kwargs) -> flask.Flask:
     """
 
     app = flask.Flask(__name__, *args, **kwargs)
-    register_blueprints(app)
-
-    # TODO LDAP authentication (Active Directory)
-
-    # Generate random secret key
-    app.secret_key = secrets.token_urlsafe()
-
-    # Configure NoSQL database
-    app.config['MONGO_URI'] = os.environ['MONGO_URI']
-    app.mongo = flask_pymongo.PyMongo(app)
+    # Load settings
+    app.config.from_object(os.getenv('FLASK_CONFIG_OBJECT',
+                                     'owast.flaskconfig'))
 
     # Security plugin
     flask_talisman.Talisman(app,
@@ -30,6 +22,13 @@ def create_app(*args, **kwargs) -> flask.Flask:
 
     # Cross-site request forgery (CSRF) protection
     flask_seasurf.SeaSurf(app)
+
+    # Configure NoSQL database
+    app.config['MONGO_URI'] = os.environ['MONGO_URI']
+    app.mongo = flask_pymongo.PyMongo(app)
+
+    # TODO LDAP authentication (Active Directory)
+    register_blueprints(app)
 
     return app
 

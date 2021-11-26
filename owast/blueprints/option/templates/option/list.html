@@ -8,15 +8,11 @@
 </a>
 <ul>
     {% for option in options %}
-    <li>
-        <i class="bi bi-align-bottom"></i>
-        <a href="{{ url_for('option.detail', option_id=option.option_id) }}">
-            {{ option.option_id }}</a>
-        <a class="btn btn-danger" href="{{ url_for('option.delete', option_id=option.option_id) }}"
-            title="Delete {{ option.option_id }}">
-            <span class="bi bi-trash-fill"></span>
-        </a>
-    </li>
+        <li>
+            <a href="{{ url_for('option.detail', option_id=option._id) }}">
+                {{ option.name }}
+            </a>
+        </li>
     {% endfor %}
 </ul>
 {% endblock %}

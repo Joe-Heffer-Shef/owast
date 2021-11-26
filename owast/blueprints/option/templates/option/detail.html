@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% set title = 'Option: ' + option.name %}
+{% set icon = 'option' %}
+{% block content %}
+<a class="btn btn-danger" href="{{ url_for('option.delete', option_id=option._id) }}"
+    title="Delete {{ option._id }}">
+    <span class="bi bi-trash-fill"></span>
+    Delete
+</a>
+<ul>
+    {% for value in option['values'] %}
+    <li>{{ value }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

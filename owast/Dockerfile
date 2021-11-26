@@ -13,7 +13,8 @@ WORKDIR $target_dir
 COPY ./owast $target_dir/owast
 
 # Install Python package dependencies
-RUN pip install -r $target_dir/owast/requirements.txt
+RUN pip install --upgrade pip \
+  && pip install -r $target_dir/owast/requirements.txt
 
 # Run as non-root user
 USER www-data

@@ -2,11 +2,8 @@
 {% set title = 'Add new option' %}
 {% set icon = 'option' %}
 {% block content %}
-<p>
-    An option has a set of possible values.
-</p>
+<p>An option has a set of possible values.</p>
 
-<pre>{{ request.form }}</pre>
 <form method="post" action="{{ url_for(request.endpoint) }}">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 
@@ -18,7 +15,7 @@
 
     <!-- Values -->
     <div class="border p-3" id="values">
-        <input type="text" class="form-control" name="value_0" id="value_0" required>
+        <input type="text" class="form-control" name="value_0" id="value_0" required autocomplete="off">
     </div>
 
     <!-- Add new value button -->
