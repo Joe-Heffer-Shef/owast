@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% set title = 'Research Objects' %}
+{% set icon = 'cup' %}
+{% block content %}
+<a class="btn btn-primary" href="{{ url_for('thing.create') }}">
+    <i class="bi bi-plus-circle"></i>
+    Add research object
+</a>
+<ul>
+    {% for thing in things -%}
+    <li><a href="{{ url_for('thing.detail', thing_id=thing._id) }}">{{ thing._id }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}

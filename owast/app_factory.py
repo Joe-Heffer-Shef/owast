@@ -1,4 +1,6 @@
 import os
+import pathlib
+import itertools
 
 import flask
 import flask_pymongo
@@ -38,23 +40,13 @@ def register_blueprints(app: flask.Flask):
     Load modular application
     https://flask.palletsprojects.com/en/2.0.x/blueprints/
     """
+    root = pathlib.Path('owast/blueprints')
 
-    import owast.blueprints.main.views
-    import owast.blueprints.experiment.views
-    import owast.blueprints.artifact.views
-    import owast.blueprints.container.views
-    import owast.blueprints.blob.views
-    import owast.blueprints.tool.views
-    import owast.blueprints.option.views
-    import owast.blueprints.service.views
-    import owast.blueprints.settings.views
-
-    app.register_blueprint(owast.blueprints.main.views.blueprint)
-    app.register_blueprint(owast.blueprints.experiment.views.blueprint)
-    app.register_blueprint(owast.blueprints.artifact.views.blueprint)
-    app.register_blueprint(owast.blueprints.container.views.blueprint)
-    app.register_blueprint(owast.blueprints.blob.views.blueprint)
-    app.register_blueprint(owast.blueprints.tool.views.blueprint)
-    app.register_blueprint(owast.blueprints.option.views.blueprint)
-    app.register_blueprint(owast.blueprints.service.views.blueprint)
-    app.register_blueprint(owast.blueprints.settings.views.blueprint)
+    # Iterate over modules
+    for path in root.iterdir():
+        if path.is_dir() and not path.name.startswith('_'):
+            # Build module name
+            module = '.'.join(itertools.chain(path.parts, ['views']))
+            # Dynamically import and register blueprint
+            exec(f'import {module}')
+            app.register_blueprint(eval(f'{module}.blueprint'))

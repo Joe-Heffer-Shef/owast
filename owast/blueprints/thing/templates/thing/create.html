@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% set title = 'Add Research Object' %}
+{% set icon = 'cup' %}
+{% block content %}
+<form method="post" action="{{ url_for(request.endpoint) }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <!-- Name -->
+    <div>
+        <label class="form-label" for="name">Name</label>
+        <input class=form-control" type="text" required name="name" id="name">
+    </div>
+
+    <!-- Schema -->
+    <div>
+        <p>
+            The object schema defined using <a href="https://json-schema.org/">JSON Schema.</a>
+        </p>
+        <label class="form-label" for="schema">Schema</label>
+        <textarea class="form-control font-monospace" name="schema" id="schema"
+                  rows="10" required>{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/product.schema.json"
+}</textarea>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn btn-primary mt-3">
+        Submit
+        <i class="bi bi-caret-right-fill"></i>
+    </button>
+</form>
+{% endblock %}

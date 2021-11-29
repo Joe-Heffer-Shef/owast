@@ -41,6 +41,15 @@
     </div>
     {% endfor %}
 
+    <!-- Custom fields -->
+    <!-- TODO validate JSON https://stackoverflow.com/a/3710226 -->
+    <div>
+        <label class="form-label" for="custom">Custom fields</label>
+        <textarea class="form-control font-monospace" id="custom" name="custom"
+                  rows="5">{}</textarea>
+        <span class="text-secondary">JSON custom code</span>
+    </div>
+
     <button type="submit" class="btn btn-primary mt-3">
         <i class="bi bi-plus-circle-fill"></i>
         Add
