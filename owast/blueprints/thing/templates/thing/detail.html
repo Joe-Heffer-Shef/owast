@@ -2,5 +2,10 @@
 {% set title = 'Thing' %}
 {% set icon = 'cup' %}
 {% block content %}
-<pre>{{ thing }}</pre>
+<dl>
+{% for key, value in thing.items() if not key.startswith('_') %}
+    <dt>{{ key }}</dt>
+    <dd><code>{{ value|tojson }}</code></dd>
+{% endfor %}
+</dl>
 {% endblock %}

@@ -8,7 +8,7 @@
 </a>
 <ul>
     {% for thing in things -%}
-    <li><a href="{{ url_for('thing.detail', thing_id=thing._id) }}">{{ thing._id }}</a></li>
+    <li><a href="{{ url_for('thing.detail', thing_id=thing._id) }}">{{ thing.name }}</a></li>
     {% endfor %}
 </ul>
 {% endblock %}
