@@ -3,6 +3,13 @@
 {% set icon = 'cup' %}
 {% block content %}
 <div>
+    <!-- Instantiate -->
+    <a class="btn btn-success" href="{{ url_for('schema.add', schema_id=schema._id) }}"
+        title="Create an instance of this schema">
+        <span class="bi bi-plus-circle"></span>
+        Add
+    </a>
+
     <!-- View JSON Schema document -->
     <a class="btn btn-primary" href="{{ url_for('schema.doc', schema_id=schema._id, indent='  ') }}">
         <span class="bi bi-braces"></span>

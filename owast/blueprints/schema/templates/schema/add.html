@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% set title = schema.title %}
+{% set icon = 'cup' %}
+{% block content %}
+<form method="post" action="{{ url_for(request.endpoint, schema_id=schema.id) }}">
+{% set input_types = dict(integer='number', string='text', number='number', boolean='checkbox') -%}
+{% set input_classes = dict(boolean='form-check-input') -%}
+{% set label_classes = dict(boolean='form-check-label') -%}
+{% for name, property in schema.properties.items() if not name.startswith('_') -%}
+    {% set input_type = input_types.get(property.type, 'text') %}
+    {% set input_class = input_classes.get(property.type, 'form-control') %}
+    {% set label_class = input_types.get(property.type, 'text') %}
+    <!-- {{ name }} -->
+    <div class="mb-3">
+        <label class="form-label" for="{{ name }}">{{ name | replace('_', ' ') | title }}</label>
+        <input class="form-control" type="{{ input_type }}" name="{{ name }}" id="{{ name }}"{% if name in schema.required %} required{% endif %}>
+        <div class="form-text">{{ property.description }}</div>
+    </div>
+{% endfor %}
+    <div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</form>
+{% endblock %}
