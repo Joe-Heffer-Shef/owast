@@ -17,6 +17,7 @@ def create_app(*args, **kwargs) -> flask.Flask:
     # Load settings
     app.config.from_object(os.getenv('FLASK_CONFIG_OBJECT',
                                      'owast.flaskconfig'))
+    app.config['BLUEPRINTS_DIR'] = os.environ['BLUEPRINTS_DIR']
 
     # Security plugin
     flask_talisman.Talisman(app,
@@ -35,18 +36,23 @@ def create_app(*args, **kwargs) -> flask.Flask:
     return app
 
 
-def register_blueprints(app: flask.Flask):
+def register_blueprints(app: flask.Flask, blueprints_dir: pathlib.Path = None):
     """
     Load modular application
     https://flask.palletsprojects.com/en/2.0.x/blueprints/
     """
-    root = pathlib.Path('owast/blueprints')
+
+    # Root directory to search for blueprints
+    blueprints_dir = pathlib.Path(
+        blueprints_dir or app.config['BLUEPRINTS_DIR'])
 
     # Iterate over modules
-    for path in root.iterdir():
+    for path in blueprints_dir.iterdir():
         if path.is_dir() and not path.name.startswith('_'):
             # Build module name
             module = '.'.join(itertools.chain(path.parts, ['views']))
             # Dynamically import and register blueprint
             exec(f'import {module}')
-            app.register_blueprint(eval(f'{module}.blueprint'))
+            blueprint = f'{module}.blueprint'
+            app.register_blueprint(eval(blueprint))
+            app.logger.debug(f"Registered blueprint '{blueprint}'")

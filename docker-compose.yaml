@@ -41,6 +41,7 @@ services:
     environment:
       - FLASK_ENV=development
       - MONGO_URI=mongodb://meta:27017/owast
+      - BLUEPRINTS_DIR=owast/blueprints
       # Gunicorn options
       # https://docs.gunicorn.org/en/stable/settings.html#settings
       - WSGI_APP=owast.app_factory:create_app()
