@@ -1,22 +1,22 @@
 {% extends "layout.html" %}
-{% set title = 'Thing' %}
+{% set title = schema.title %}
 {% set icon = 'cup' %}
 {% block content %}
 <div>
     <!-- View JSON Schema document -->
-    <a class="btn btn-primary" href="{{ url_for('thing.schema', thing_id=thing._id, indent='  ') }}">
+    <a class="btn btn-primary" href="{{ url_for('schema.doc', schema_id=schema._id, indent='  ') }}">
         <span class="bi bi-braces"></span>
         JSON Schema
     </a>
 
     <!-- Delete -->
-    <a class="btn btn-danger" href="{{ url_for('thing.delete', thing_id=thing._id) }}">
+    <a class="btn btn-danger" href="{{ url_for('schema.delete', schema_id=schema._id) }}">
         <span class="bi bi-trash-fill"></span>
         Delete
     </a>
 </div>
 <dl>
-{% for key, value in thing.items() if not key.startswith('_') %}
+{% for key, value in schema.items() if not key.startswith('_') %}
     <dt>{{ key }}</dt>
     <dd><code>{{ value|tojson }}</code></dd>
 {% endfor %}

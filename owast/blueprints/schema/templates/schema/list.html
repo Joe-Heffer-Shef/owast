@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% set title = 'Research Objects' %}
+{% set icon = 'cup' %}
+{% block content %}
+<a class="btn btn-primary" href="{{ url_for('schema.create') }}">
+    <i class="bi bi-plus-circle"></i>
+    Add research object
+</a>
+<ul>
+    {% for schema in schemas -%}
+    <li>
+        <a href="{{ url_for('schema.detail', schema_id=schema._id) }}">{{ schema.title }}</a>
+        <span class="badge bg-secondary">{{ schema.type }}</span>
+        {{ schema.description }}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
