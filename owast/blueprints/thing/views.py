@@ -73,3 +73,13 @@ def schema(thing_id: ObjectId):
     return app.response_class(
         bson.json_util.dumps(schema, **flask.request.args),
         mimetype='application/json')
+
+
+@blueprint.route('/<ObjectId:thing_id>/delete')
+def delete(thing_id: ObjectId):
+    things = app.mongo.db.things  # type: flask_pymongo.wrappers.Collection
+    result = things.delete_one(
+        dict(_id=thing_id))  # type: pymongo.results.DeleteResult
+    app.logger.info(result.raw_result)
+    flask.flash(f'Deleted {thing_id}')
+    return flask.redirect(flask.url_for('thing.list_'))

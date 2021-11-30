@@ -3,9 +3,16 @@
 {% set icon = 'cup' %}
 {% block content %}
 <div>
-    <a class="btn btn-primary" href="{{ url_for('thing.schema', thing_id=thing._id, indent="  ") }}">
+    <!-- View JSON Schema document -->
+    <a class="btn btn-primary" href="{{ url_for('thing.schema', thing_id=thing._id, indent='  ') }}">
         <span class="bi bi-braces"></span>
         JSON Schema
+    </a>
+
+    <!-- Delete -->
+    <a class="btn btn-danger" href="{{ url_for('thing.delete', thing_id=thing._id) }}">
+        <span class="bi bi-trash-fill"></span>
+        Delete
     </a>
 </div>
 <dl>

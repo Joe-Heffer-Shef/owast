@@ -19,7 +19,7 @@
     <!-- Schema -->
     <div>
         <label class="form-label" for="_schema">Schema</label>
-        <textarea class="form-control font-monospace" name="_schema" id="_schema" rows="10" required>{}</textarea>
+        <textarea class="form-control font-monospace" name="_schema" id="_schema" rows="20" required>{}</textarea>
         <div class="form-text">The object schema defined using <a href="https://json-schema.org/">JSON Schema.</a></div>
     </div>
 
@@ -29,4 +29,21 @@
         <i class="bi bi-caret-right-fill"></i>
     </button>
 </form>
+
+<div>
+    <h2>Example</h2>
+    <pre>{
+  "properties": {
+    "productId": {
+      "description": "The unique identifier for a product",
+      "type": "integer"
+    },
+    "productName": {
+      "description": "Name of the product",
+      "type": "string"
+    }
+  },
+  "required": ["productId", "productName"]
+}</pre>
+</div>
 {% endblock %}
