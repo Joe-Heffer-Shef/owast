@@ -60,9 +60,12 @@ def detail(thing_id: ObjectId):
 def schema(thing_id: ObjectId):
     """
     Show the JSON schema document
+
+    https://json-schema.org/draft/2020-12/json-schema-core.html
     """
     thing = app.mongo.db.things.find_one_or_404(thing_id)
-    schema = dict(
+    # Build schema document
+    doc = dict(
         **{
             '$schema': 'https://json-schema.org/draft/2020-12/schema',
             '$id': f'https://localhost/thing/{thing_id}/schema.json',
@@ -71,8 +74,8 @@ def schema(thing_id: ObjectId):
            not key.startswith('_')}
     )
     return app.response_class(
-        bson.json_util.dumps(schema, **flask.request.args),
-        mimetype='application/json')
+        bson.json_util.dumps(doc, **flask.request.args),
+        mimetype='application/schema+json')
 
 
 @blueprint.route('/<ObjectId:thing_id>/delete')
