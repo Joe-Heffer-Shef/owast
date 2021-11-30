@@ -2,6 +2,12 @@
 {% set title = 'Thing' %}
 {% set icon = 'cup' %}
 {% block content %}
+<div>
+    <a class="btn btn-primary" href="{{ url_for('thing.schema', thing_id=thing._id, indent="  ") }}">
+        <span class="bi bi-braces"></span>
+        JSON Schema
+    </a>
+</div>
 <dl>
 {% for key, value in thing.items() if not key.startswith('_') %}
     <dt>{{ key }}</dt>
