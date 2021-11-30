@@ -20,6 +20,8 @@ RUN pip install --upgrade pip \
 USER www-data
 
 # Run web app
+# This command should be the same as the one used by Azure App Service
+# https://docs.microsoft.com/en-us/azure/app-service/configure-language-python#container-characteristics
 # https://docs.gunicorn.org/en/stable/run.html
 # https://docs.gunicorn.org/en/stable/custom.html?highlight=flask#direct-usage-of-existing-wsgi-apps
-CMD ["gunicorn", "--config", "owast/gunicornconfig.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0", "--timeout", "600", "--config", "owast/gunicorn.conf.py"]

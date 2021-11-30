@@ -6,8 +6,8 @@
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <!-- Name -->
     <div>
-        <label class="form-label" for="name">Name</label>
-        <input class=form-control" type="text" required name="name" id="name">
+        <label class="form-label" for="title">Title</label>
+        <input class=form-control" type="text" name="title" id="title" required>
     </div>
 
     <!-- Schema -->
@@ -17,10 +17,7 @@
         </p>
         <label class="form-label" for="schema">Schema</label>
         <textarea class="form-control font-monospace" name="schema" id="schema"
-                  rows="10" required>{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/product.schema.json"
-}</textarea>
+                  rows="10" required>{}</textarea>
     </div>
 
     <!-- Submit -->

@@ -36,23 +36,29 @@ services:
       # Allow editing of files without rebuilding images
       - ./owast:/opt/owast/owast
       - ./meta:/opt/owast/meta
-    ports:
-      - "80:8000"
     env_file:
       - owast/.env
     environment:
       - FLASK_ENV=development
       - MONGO_URI=mongodb://meta:27017/owast
       # Gunicorn options
-      - BIND=0.0.0.0:8000
+      # https://docs.gunicorn.org/en/stable/settings.html#settings
       - WSGI_APP=owast.app_factory:create_app()
-      - CHDIR=/opt/owast
-      # Auto-reload upon code change
-      - RELOAD=True
-      - GUNICORN_CMD_ARGS=--log-level debug --timeout 5
+      - GUNICORN_CMD_ARGS=--log-level debug --user www-data --group www-data --reload True --chdir /opt/owast --bind 0.0.0.0 --timeout 600 --config owast/gunicorn.conf.py
       # Blob storage settings
-      - BLOB_ENDPOINT=http://blob:10000/devstoreaccount1
+      - BLOB_CONN_STR=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://blob:10000/devstoreaccount1;
     restart: always
+
+  # Web server
+  proxy:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx/owast.conf:/etc/nginx/conf.d/owast.conf
 
   # Mock Active Directory
   #auth:

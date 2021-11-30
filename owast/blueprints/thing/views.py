@@ -20,7 +20,14 @@ def list_():
 @blueprint.route('/create', methods={'GET', 'POST'})
 def create():
     if flask.request.method == 'POST':
-        thing = json.loads(flask.request.form['schema'])
+        thing = {
+            '$schema': 'https://json-schema.org/draft/2020-12/schema',
+            '$id': 'https://localhost/thing/{thing_id}/schema.json',
+            'title': '',
+            'description': '',
+            'type': 'object',
+        }
+        _thing = json.loads(flask.request.form['schema'])
         thing.update(flask.request.form)
         result = app.mongo.db.things.insert_one(
             thing)  # type:pymongo.results.InsertOneResult
