@@ -11,7 +11,7 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_resource_group" "OWAResourceGroup" {
+resource "azurerm_resource_group" "rg" {
   name = "OWA"
   location = "uksouth"
 }
