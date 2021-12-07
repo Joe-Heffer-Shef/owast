@@ -16,11 +16,20 @@
         <input class=form-control" type="text" name="description" id="description">
     </div>
 
-    <!-- Schema -->
+    <!-- Properties -->
     <div>
-        <label class="form-label" for="_schema">Schema</label>
-        <textarea class="form-control font-monospace" name="_schema" id="_schema" rows="20" required>{}</textarea>
+        <label class="form-label" for="properties">Properties</label>
+        <textarea class="form-control font-monospace" name="properties"
+                  id="properties" rows="12" required>{}</textarea>
         <div class="form-text">The object schema defined using <a href="https://json-schema.org/">JSON Schema.</a></div>
+    </div>
+
+    <!-- Required -->
+    <div>
+        <label class="form-label" for="required">Required properties</label>
+        <textarea class="form-control font-monospace" name="required"
+                  id="required" rows="3" required>[]</textarea>
+        <div class="form-text">A JSON list of mandatory property names.</div>
     </div>
 
     <!-- Submit -->

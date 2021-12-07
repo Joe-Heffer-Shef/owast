@@ -1,14 +1,42 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/product.schema.json",
+  "$id": "https://localhost/schema/61af8a8652f463d1fbcc1eff/schema.json",
   "title": "Tool",
-  "description": "A machine used for research experiments",
+  "description": "A machine",
   "type": "object",
   "properties": {
     "code": {
-      "description": "Unique tool code",
+      "type": "string"
+    },
+    "serial": {
+      "type": "string"
+    },
+    "vericut_number": {
+      "type": "integer"
+    },
+    "supplier": {
       "type": "string",
-      "unique": true
+      "enum": [
+        "OSG",
+        "Sumitomo",
+        "Sandvik"
+      ]
+    },
+    "received": {
+      "type": "boolean",
+      "default": false
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "Mill (Spring)",
+        "Mill (Compressive)",
+        "Drill"
+      ]
     }
-  }
+  },
+  "required": [
+    "code",
+    "received"
+  ]
 }

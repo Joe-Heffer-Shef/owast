@@ -21,17 +21,17 @@ def create():
     """
     Add a new research object
     """
-    # Process form submisson
+
+    # Process form submission
     if flask.request.method == 'POST':
         # Build research object from user input
-        schema = {
-            'title': '',
-            'description': '',
-            'type': 'object',
-        }
-        schema.update(json.loads(flask.request.form['_schema']))
-        schema.update({k: v for k, v in flask.request.form.items() if
-                       not k.startswith('_')})
+        schema = dict(
+            title=flask.request.form['title'],
+            description=flask.request.form['description'],
+            type='object',
+            properties=json.loads(flask.request.form['properties']),
+            required=json.loads(flask.request.form['required']),
+        )
 
         # Create document
         result = app.mongo.db.schemas.insert_one(
