@@ -1,5 +1,7 @@
 # AMRC OWAST
 
+[![Build Status](https://dev.azure.com/sheffielduni/owast/_apis/build/status/owast?branchName=master)](https://dev.azure.com/sheffielduni/owast/_build/latest?definitionId=1&branchName=master)
+
 Metadata registry, data store and web app.
 
 # Installation
