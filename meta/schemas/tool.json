@@ -6,15 +6,19 @@
   "type": "object",
   "properties": {
     "code": {
-      "type": "string"
+      "type": "string",
+      "description": "This could be a tool assembly ID"
     },
     "serial": {
       "type": "string"
     },
     "vericut_number": {
-      "type": "integer"
+      "type": "integer",
+      "description": "Identifier for simulation software",
+      "minimum": 1
     },
     "supplier": {
+      "description": "Who provided this item",
       "type": "string",
       "enum": [
         "OSG",
@@ -23,6 +27,7 @@
       ]
     },
     "received": {
+      "description": "Was this obtained from the supplier?",
       "type": "boolean",
       "default": false
     },

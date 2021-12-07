@@ -2,6 +2,7 @@ import json
 
 import flask
 import pymongo.results
+import pymongo.database
 from bson.objectid import ObjectId
 import bson.json_util
 
@@ -24,10 +25,15 @@ def create():
 
     # Process form submission
     if flask.request.method == 'POST':
+        # Prevent collection name conflict
+        if flask.request.form['collection'] == 'schemas':
+            raise ValueError('Invalid collection name')
+
         # Build research object from user input
         schema = dict(
             title=flask.request.form['title'],
             description=flask.request.form['description'],
+            collection=flask.request.form['collection'],
             type='object',
             properties=json.loads(flask.request.form['properties']),
             required=json.loads(flask.request.form['required']),
@@ -40,7 +46,7 @@ def create():
         app.logger.info(result.acknowledged)
         flask.flash(f'Created "{result.inserted_id}"')
 
-        # Redirect to the new obhect
+        # Redirect to the new object
         return flask.redirect(flask.url_for('schema.detail',
                                             schema_id=result.inserted_id))
 
@@ -86,10 +92,16 @@ def delete(schema_id: ObjectId):
     return flask.redirect(flask.url_for('schema.list_'))
 
 
-@blueprint.route('/<ObjectId:schema_id>/add')
+@blueprint.route('/<ObjectId:schema_id>/add', methods={'GET', 'POST'})
 def add(schema_id: ObjectId):
     """
     Create an instance according to this schema
     """
     schema = app.mongo.db.schemas.find_one_or_404(schema_id)
+
+    if flask.request.method == 'POST':
+        # TODO If they add a new value, then modify the schema enum
+
+        raise NotImplementedError
+
     return flask.render_template('schema/add.html', schema=schema)

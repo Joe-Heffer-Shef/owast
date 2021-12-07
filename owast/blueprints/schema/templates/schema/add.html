@@ -1,20 +1,52 @@
 {% extends "layout.html" %}
 {% set title = schema.title %}
-{% set icon = 'cup' %}
+{% set icon = schema.get('icon', 'cup') %}
 {% block content %}
-<form method="post" action="{{ url_for(request.endpoint, schema_id=schema.id) }}">
+
+<div>
+    <p>
+        Create a new <code>{{ schema.title | title }}</code> object by
+        populating the property fields below.
+    </p>
+    <p>
+        The new object will be stored as an object in the
+        <code>{{ schema.collection }}</code> collection in the metadata
+        database.
+    </p>
+</div>
+
+<!-- Schema description -->
+<div class="alert alert-info" role="alert">
+  <p>{{ schema.description }}</p>
+</div>
+
+<!-- New object form -->
+<form method="post" action="{{ url_for(request.endpoint, schema_id=schema._id) }}">
 {% set input_types = dict(integer='number', string='text', number='number', boolean='checkbox') -%}
 {% set input_classes = dict(boolean='form-check-input') -%}
 {% set label_classes = dict(boolean='form-check-label') -%}
+<!-- One input per object property -->
 {% for name, property in schema.properties.items() if not name.startswith('_') -%}
-    {% set input_type = input_types.get(property.type, 'text') %}
-    {% set input_class = input_classes.get(property.type, 'form-control') %}
-    {% set label_class = input_types.get(property.type, 'text') %}
-    <!-- {{ name }} -->
+    {% set input_type = input_types.get(property.type, 'text') -%}
+    {% set label_class = label_classes.get(property.type, 'form-label') %}
+    {% set input_class = input_classes.get(property.type, 'form-control') -%}
+    <!-- {{ name }} ({{ property.type }}) -->
+    <!-- >{{ property.minimum }} <{{ property.maximum }} -->
     <div class="mb-3">
-        <label class="form-label" for="{{ name }}">{{ name | replace('_', ' ') | title }}</label>
-        <input class="form-control" type="{{ input_type }}" name="{{ name }}" id="{{ name }}"{% if name in schema.required %} required{% endif %}>
+        <label class="{{ label_class }}" for="{{ name }}">{{ name | replace('_', ' ')| title }}</label>
+        <input class="{{ input_class }}" type="{{ input_type }}" name="{{ name }}" id="{{ name }}"
+            {% if name in schema.required %}required {% endif -%}
+            {% if property.enum %}list="{{ name }}_list" {% endif -%}
+            {% if property.minimum is not none %}min="{{ property.minimum }}" {% endif -%}
+            {% if property.maximum is not none %}max="{{ property.maximum }}" {% endif -%}>
         <div class="form-text">{{ property.description }}</div>
+        {% if property.enum -%}
+        <datalist id="{{ name }}_list">
+            {% for value in property.enum -%}
+            <option value="{{ value }}">
+            {% endfor %}
+        </datalist>
+        {% endif -%}
     </div>
 {% endfor %}
     <div>
