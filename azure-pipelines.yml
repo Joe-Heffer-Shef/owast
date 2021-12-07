@@ -4,16 +4,15 @@
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema
 
 trigger:
-- master
+  - master
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  - task: AzureWebApp
+    inputs:
+      azureSubscription: a8060647-8f7f-47ca-bec3-e79e4ab2bcdf
+      appType: webAppLinux
+      appName: ingress
+      package:
