@@ -1,8 +1,9 @@
 {% extends "layout.html" %}
-{% set title = 'Add Research Object' %}
-{% set icon = 'cup' %}
+{% set title = schema.title %}
+{% set icon = schema.icon or 'cup' %}
 {% block content %}
-<form method="post" action="{{ url_for(request.endpoint) }}">
+<p>Edit this research object.</p>
+<form method="post" action="{{ url_for(request.endpoint, schema_id=schema._id) }}">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     {% for field in form %}
     <!-- {{ field.name }} -->
@@ -18,26 +19,7 @@
 
     <!-- Submit -->
     <button type="submit" class="btn btn-primary mt-3">
-        Submit
-        <i class="bi bi-caret-right-fill"></i>
+        <i class="bi bi-save"></i> Save
     </button>
 </form>
-
-<div>
-    <h2>Example</h2>
-    <p>These are example JSON schema codes.</p>
-    <h3>Properties</h3>
-    <pre>{
-    "productId": {
-      "description": "The unique identifier for a product",
-      "type": "integer",
-      "minimum": 1
-    },
-    "productName": {
-      "description": "Name of the product",
-      "type": "string"
-}</pre>
-<h3>Required</h3>
-<pre>["productId", "productName"]</pre>
-</div>
 {% endblock %}

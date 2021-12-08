@@ -2,12 +2,12 @@ import json
 import os
 
 import flask
-import pymongo.results
-import pymongo.database
-import pymongo.collection
-import flask_pymongo.wrappers
+from pymongo.results import UpdateResult, InsertOneResult, DeleteResult
+from flask_pymongo.wrappers import Collection, Database
 from bson.objectid import ObjectId
 import bson.json_util
+
+from .forms import SchemaForm
 
 app = flask.current_app
 blueprint = flask.Blueprint('schema', __name__, url_prefix='/schema',
@@ -25,6 +25,11 @@ JSON_TO_PYTHON = dict(
     null=None,
 )
 
+JSON_FIELDS = {
+    'properties',
+    'required',
+}
+
 
 @blueprint.route('/')
 def list_():
@@ -38,8 +43,10 @@ def create():
     Add a new research object
     """
 
+    form = SchemaForm()
+
     # Process form submission
-    if flask.request.method == 'POST':
+    if form.validate_on_submit():
         # Prevent collection name conflict
         if flask.request.form['collection'] == 'schemas':
             raise ValueError('Invalid collection name')
@@ -57,7 +64,7 @@ def create():
 
         # Create document
         result = app.mongo.db.schemas.insert_one(
-            schema)  # type:pymongo.results.InsertOneResult
+            schema)  # type: InsertOneResult
 
         app.logger.info(result.acknowledged)
         flask.flash(f'Created "{result.inserted_id}"')
@@ -67,7 +74,7 @@ def create():
                                             schema_id=result.inserted_id))
 
     # Show form
-    return flask.render_template('schema/create.html')
+    return flask.render_template('schema/create.html', form=form)
 
 
 @blueprint.route('/<ObjectId:schema_id>')
@@ -103,9 +110,9 @@ def doc(schema_id: ObjectId):
 
 @blueprint.route('/<ObjectId:schema_id>/delete')
 def delete(schema_id: ObjectId):
-    schemas = app.mongo.db.schemas  # type: flask_pymongo.wrappers.Collection
+    schemas = app.mongo.db.schemas  # type: Collection
     result = schemas.delete_one(
-        dict(_id=schema_id))  # type: pymongo.results.DeleteResult
+        dict(_id=schema_id))  # type: DeleteResult
     app.logger.info(result.raw_result)
     flask.flash(f'Deleted {schema_id}')
     return flask.redirect(flask.url_for('schema.list_'))
@@ -116,14 +123,14 @@ def add(schema_id: ObjectId):
     """
     Create an instance according to this schema
     """
-    db = app.mongo.db  # type: pymongo.database.Database
+    db = app.mongo.db  # type: Database
     schema = db.schemas.find_one_or_404(schema_id)
 
     if flask.request.method == 'POST':
         # TODO If they add a new value, then modify the schema enum
 
         collection = db.get_collection(
-            schema['collection'])  # type:  flask_pymongo.wrappers.Collection
+            schema['collection'])  # type:  Collection
 
         # Create new document from form input
         document = {
@@ -134,7 +141,7 @@ def add(schema_id: ObjectId):
             if not key.startswith('_')}
 
         result = collection.insert_one(
-            document)  # type: pymongo.results.InsertOneResult
+            document)  # type: InsertOneResult
         app.logger.info(result.acknowledged)
         flask.flash(f"Added new document '{result.inserted_id}'")
 
@@ -150,7 +157,7 @@ def instance(schema_id: ObjectId, document_id: ObjectId):
     """
     View an instance of a schema
     """
-    db = app.mongo.db  # type: flask_pymongo.wrappers.Database
+    db = app.mongo.db  # type: Database
     schema = db.schemas.find_one_or_404(schema_id)
     collection = getattr(db, schema['collection'])
     document = collection.find_one_or_404(document_id)
@@ -164,7 +171,7 @@ def instance_doc(schema_id: ObjectId, document_id: ObjectId):
     """
     View an instance of a schema as a JSON document
     """
-    db = app.mongo.db  # type: flask_pymongo.wrappers.Database
+    db = app.mongo.db  # type: Database
     schema = db.schemas.find_one_or_404(schema_id)
     collection = getattr(db, schema['collection'])
     document = collection.find_one_or_404(document_id)
@@ -181,9 +188,38 @@ def instance_doc(schema_id: ObjectId, document_id: ObjectId):
 
 @blueprint.route('/<ObjectId:schema_id>/list')
 def instances(schema_id: ObjectId):
-    db = app.mongo.db  # type: flask_pymongo.wrappers.Database
+    db = app.mongo.db  # type: Database
     schema = db.schemas.find_one_or_404(schema_id)
     collection = getattr(db, schema['collection'])
     documents = collection.find()
     return flask.render_template('schema/instances.html', schema=schema,
                                  documents=documents)
+
+
+@blueprint.route('/<ObjectId:schema_id>/edit', methods={'GET', 'POST'})
+def edit(schema_id: ObjectId):
+    """
+    Modify a research object
+    """
+
+    collection = app.mongo.db.schemas  # type: Collection
+    schema = collection.find_one_or_404(schema_id)
+
+    form = SchemaForm()
+
+    # Process form submission
+    if form.validate_on_submit():
+        # Parse JSON fields
+        _schema = {key: json.loads(value) if key in JSON_FIELDS else value
+                   for key, value in form.data.items()}
+        # Write changes to database
+        result = collection.update_one(
+            dict(_id=schema_id), {'$set': _schema})  # type: UpdateResult
+        app.logger.info(result.raw_result)
+        flask.flash(f"Saved changes to '{schema['title']}'")
+
+    # Convert fields to JSON
+    form.process(
+        **{key: json.dumps(schema[key]) if key in JSON_FIELDS else value for
+           key, value in schema.items()})
+    return flask.render_template('schema/edit.html', schema=schema, form=form)

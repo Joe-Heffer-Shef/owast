@@ -7,27 +7,29 @@
     <!-- Instantiate -->
     <a class="btn btn-success" href="{{ url_for('schema.add', schema_id=schema._id) }}"
         title="Create an instance of this schema">
-        <span class="bi bi-plus-circle"></span>
-        Add
+        <span class="bi bi-plus-circle"></span> Add
     </a>
 
     <!-- View JSON Schema document -->
     <a class="btn btn-primary" href="{{ url_for('schema.doc', schema_id=schema._id, indent='  ') }}">
-        <span class="bi bi-braces"></span>
-        JSON Schema
+        <span class="bi bi-braces"></span> JSON Schema
     </a>
 
     <!-- List instances -->
     <a class="btn btn-primary" href="{{ url_for('schema.instances', schema_id=schema._id) }}"
         title="List the instances of this schema">
-        <span class="bi bi-list"></span>
-        List
+        <span class="bi bi-list"></span> List
+    </a>
+
+    <!-- Edit -->
+    <a class="btn btn-primary" href="{{ url_for('schema.edit', schema_id=schema._id) }}"
+        title="Change this research object">
+        <span class="bi bi-pencil"></span> Edit
     </a>
 
     <!-- Delete -->
     <a class="btn btn-danger" href="{{ url_for('schema.delete', schema_id=schema._id) }}">
-        <span class="bi bi-trash-fill"></span>
-        Delete
+        <span class="bi bi-trash-fill"></span> Delete
     </a>
 </div>
 
