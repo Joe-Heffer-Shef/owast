@@ -1,29 +1,17 @@
 import json
 import os
 
-import flask
-from pymongo.results import UpdateResult, InsertOneResult, DeleteResult
-from flask_pymongo.wrappers import Collection, Database
-from bson.objectid import ObjectId
 import bson.json_util
+import flask
+from bson.objectid import ObjectId
+from flask_pymongo.wrappers import Collection, Database
+from pymongo.results import UpdateResult, InsertOneResult, DeleteResult
 
 from .forms import SchemaForm
 
 app = flask.current_app
 blueprint = flask.Blueprint('schema', __name__, url_prefix='/schema',
                             template_folder='templates')
-
-# Map JSON Schema data types to Python native types
-# https://json-schema.org/understanding-json-schema/reference/type.html
-JSON_TO_PYTHON = dict(
-    string=str,
-    integer=int,
-    boolean=bool,
-    number=float,
-    object=dict,
-    array=list,
-    null=None,
-)
 
 JSON_FIELDS = {
     'properties',
@@ -118,84 +106,6 @@ def delete(schema_id: ObjectId):
     return flask.redirect(flask.url_for('schema.list_'))
 
 
-@blueprint.route('/<ObjectId:schema_id>/add', methods={'GET', 'POST'})
-def add(schema_id: ObjectId):
-    """
-    Create an instance according to this schema
-    """
-    db = app.mongo.db  # type: Database
-    schema = db.schemas.find_one_or_404(schema_id)
-
-    if flask.request.method == 'POST':
-        # TODO If they add a new value, then modify the schema enum
-
-        collection = db.get_collection(
-            schema['collection'])  # type:  Collection
-
-        # Create new document from form input
-        document = {
-            #  Cast data types
-            key: JSON_TO_PYTHON[schema['properties'][key]['type']](value)
-            for key, value in flask.request.form.items()
-            # Ignore hidden values
-            if not key.startswith('_')}
-
-        result = collection.insert_one(
-            document)  # type: InsertOneResult
-        app.logger.info(result.acknowledged)
-        flask.flash(f"Added new document '{result.inserted_id}'")
-
-        return flask.redirect(
-            flask.url_for('schema.instance', schema_id=schema['_id'],
-                          document_id=result.inserted_id))
-
-    return flask.render_template('schema/add.html', schema=schema)
-
-
-@blueprint.route('/<ObjectId:schema_id>/<ObjectId:document_id>')
-def instance(schema_id: ObjectId, document_id: ObjectId):
-    """
-    View an instance of a schema
-    """
-    db = app.mongo.db  # type: Database
-    schema = db.schemas.find_one_or_404(schema_id)
-    collection = getattr(db, schema['collection'])
-    document = collection.find_one_or_404(document_id)
-
-    return flask.render_template('schema/instance.html', document=document,
-                                 schema=schema)
-
-
-@blueprint.route('/<ObjectId:schema_id>/<ObjectId:document_id>.json')
-def instance_doc(schema_id: ObjectId, document_id: ObjectId):
-    """
-    View an instance of a schema as a JSON document
-    """
-    db = app.mongo.db  # type: Database
-    schema = db.schemas.find_one_or_404(schema_id)
-    collection = getattr(db, schema['collection'])
-    document = collection.find_one_or_404(document_id)
-
-    document["$schema"] = os.environ['JSON_SCHEMA_SPEC']
-    document["$id"] = flask.url_for(flask.request.endpoint, _external=True,
-                                    schema_id=schema_id,
-                                    document_id=document_id)
-
-    return app.response_class(
-        bson.json_util.dumps(document, **flask.request.args),
-        mimetype='application/schema+json')
-
-
-@blueprint.route('/<ObjectId:schema_id>/list')
-def instances(schema_id: ObjectId):
-    db = app.mongo.db  # type: Database
-    schema = db.schemas.find_one_or_404(schema_id)
-    collection = getattr(db, schema['collection'])
-    documents = collection.find()
-    return flask.render_template('schema/instances.html', schema=schema,
-                                 documents=documents)
-
-
 @blueprint.route('/<ObjectId:schema_id>/edit', methods={'GET', 'POST'})
 def edit(schema_id: ObjectId):
     """
@@ -217,6 +127,8 @@ def edit(schema_id: ObjectId):
             dict(_id=schema_id), {'$set': _schema})  # type: UpdateResult
         app.logger.info(result.raw_result)
         flask.flash(f"Saved changes to '{schema['title']}'")
+        return flask.redirect(flask.url_for('schema.detail',
+                                            schema_id=schema_id))
 
     # Convert fields to JSON
     form.process(

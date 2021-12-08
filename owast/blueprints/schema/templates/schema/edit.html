@@ -7,6 +7,7 @@
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     {% for field in form %}
     <!-- {{ field.name }} -->
+    <!-- {{ field.__class__.__name__ }} -->
     <div>
         {{ field.label(class='form-label') }}
         {{ field(class='form-control') }}

@@ -6,7 +6,7 @@
 <ul>
     {% for document in documents -%}
     <li>
-        <a href="{{ url_for('schema.instance', schema_id=schema._id, document_id=document._id) }}">
+        <a href="{{ url_for('instance.detail', schema_id=schema._id, document_id=document._id) }}">
             <span class="bi bi-{{ schema.icon }}"></span>
             {% for key, value in document.items() if not key.startswith('_') and value %}
             {% if loop.index <= 3 %}

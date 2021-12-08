@@ -5,7 +5,7 @@
 <p>{{ schema.description }}</p>
 <div>
     <!-- Instantiate -->
-    <a class="btn btn-success" href="{{ url_for('schema.add', schema_id=schema._id) }}"
+    <a class="btn btn-success" href="{{ url_for('instance.create', schema_id=schema._id) }}"
         title="Create an instance of this schema">
         <span class="bi bi-plus-circle"></span> Add
     </a>
@@ -16,7 +16,7 @@
     </a>
 
     <!-- List instances -->
-    <a class="btn btn-primary" href="{{ url_for('schema.instances', schema_id=schema._id) }}"
+    <a class="btn btn-primary" href="{{ url_for('instance.list_', schema_id=schema._id) }}"
         title="List the instances of this schema">
         <span class="bi bi-list"></span> List
     </a>
@@ -33,10 +33,13 @@
     </a>
 </div>
 
-<dl>
-{% for key, value in schema.items() if not key.startswith('_') %}
-    <dt>{{ key }}</dt>
-    <dd><code>{{ value|tojson }}</code></dd>
-{% endfor %}
-</dl>
+<div>
+    <h2>Definition</h2>
+    <dl>
+    {% for key, value in schema.items() if not key.startswith('_') %}
+        <dt>{{ key }}</dt>
+        <dd><code>{{ value|tojson }}</code></dd>
+    {% endfor %}
+    </dl>
+</div>
 {% endblock %}

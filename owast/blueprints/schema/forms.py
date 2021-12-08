@@ -1,6 +1,12 @@
 import flask_wtf
-from wtforms import StringField, TextAreaField
+from wtforms import StringField, TextAreaField, RadioField
 from wtforms.validators import InputRequired
+
+PROV_STRUCTURES = [
+    'Entity',
+    'Activity',
+    'Agent',
+]
 
 
 class SchemaForm(flask_wtf.FlaskForm):
@@ -14,6 +20,13 @@ class SchemaForm(flask_wtf.FlaskForm):
     title = StringField(validators=[InputRequired()])
     collection = StringField(description='The plural of the title')
     description = StringField()
+    prov_type = RadioField(
+        label='PROV Type',
+        choices=PROV_STRUCTURES,
+        description='Which PROV data structure should be used to represent '
+                    'this object.',
+        validators=[InputRequired()],
+    )
     icon = StringField(
         description='See <a href="https://icons.getbootstrap.com/">Bootstrap Icons</a> list')
     properties = TextAreaField(default='{}', render_kw=dict(rows=8),
