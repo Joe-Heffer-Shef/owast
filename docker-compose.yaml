@@ -5,6 +5,8 @@ services:
   # Emulator for Azure Blob Storage
   blob:
     image: mcr.microsoft.com/azure-storage/azurite
+    volumes:
+      - ./.volumes/blob:/data
 
   # Emulator for Azure Cosmo DB document-store (NoSQL) database.
   # There is also an emulator for the Azure service, which currently only supports the SQL API:
@@ -15,6 +17,7 @@ services:
     volumes:
       # Import scripts
       - ./meta:/meta
+      - ./.volumes/meta:/data/db
 
   # Web interface to view the MongoDB instance
   meta-admin:
