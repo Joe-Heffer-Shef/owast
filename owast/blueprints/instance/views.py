@@ -41,12 +41,14 @@ def document(schema_id: ObjectId, document_id: ObjectId):
     """
     View an instance of a schema as a JSON document
     """
+
     db = app.mongo.db  # type: Database
     schema = db.schemas.find_one_or_404(schema_id)
     collection = getattr(db, schema['collection'])
     instance = collection.find_one_or_404(document_id)
 
-    instance["$schema"] = os.environ['JSON_SCHEMA_SPEC']
+    instance["$schema"] = flask.url_for('schema.document', _external=True,
+                                        schema_id=str(schema['_id']))
     instance["$id"] = flask.url_for(flask.request.endpoint, _external=True,
                                     schema_id=schema_id,
                                     document_id=document_id)
@@ -97,3 +99,18 @@ def create(schema_id: ObjectId):
                           document_id=result.inserted_id))
 
     return flask.render_template('instance/create.html', schema=schema)
+
+
+@blueprint.route('/<ObjectId:schema_id>/<ObjectId:document_id>/edit')
+def edit(schema_id: ObjectId, document_id: ObjectId):
+    """
+    Change the document for an instance of a research object schema.
+    """
+
+    db = app.mongo.db  # type: Database
+    schema = db.schemas.find_one_or_404(schema_id)
+    collection = getattr(db, schema['collection'])
+    instance = collection.find_one_or_404(document_id)
+
+    return flask.render_template('instance/detail.html', instance=instance,
+                                 schema=schema)

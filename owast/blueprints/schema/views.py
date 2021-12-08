@@ -72,7 +72,7 @@ def detail(schema_id: ObjectId):
 
 
 def build_json_schema_document(schema: dict) -> dict:
-    uri = flask.url_for('schema.doc', schema_id=str(schema['_id']),
+    uri = flask.url_for('schema.document', schema_id=str(schema['_id']),
                         _external=True)
     return dict(
         **{'$schema': os.environ['JSON_SCHEMA_SPEC'],
@@ -83,7 +83,7 @@ def build_json_schema_document(schema: dict) -> dict:
 
 
 @blueprint.route('/<ObjectId:schema_id>/schema.json')
-def doc(schema_id: ObjectId):
+def document(schema_id: ObjectId):
     """
     Show the JSON schema document
 

@@ -2,27 +2,41 @@
 {% set title = schema.title %}
 {% set icon = schema.icon %}
 {% block content %}
+<p>{{ schema.description }}</p>
 <div>
     <!-- Instantiate -->
     <a class="btn btn-primary" href="{{ url_for('schema.detail', schema_id=schema._id) }}"
         title="View the schema for this document">
-        <span class="bi bi-cup"></span>
-        Research Object
+        <span class="bi bi-cup"></span> Research Object
     </a>
 
     <!-- JSON document -->
-    <a class="btn btn-primary" href="{{ url_for('schema.instance_doc', schema_id=schema._id, document_id=document._id, indent='  ') }}"
+    <a class="btn btn-primary" href="{{ url_for('instance.document', schema_id=schema._id, document_id=instance._id, indent='  ') }}"
         title="View this document as a JSON document">
-        <span class="bi bi-braces"></span>
-        JSON
+        <span class="bi bi-braces"></span> JSON
+    </a>
+
+    <!-- Edit -->
+    <a class="btn btn-primary" href="{{ url_for('instance.edit', schema_id=schema._id, document_id=instance._id, indent='  ') }}"
+        title="Change this document">
+        <span class="bi bi-pencil-fill"></span> Edit
+    </a>
+
+    <!-- Add relation -->
+    <a class="btn btn-primary" href="{{ url_for('relation.create', from_schema_id=schema._id, from_document_id=instance._id) }}">
+        <span class="bi bi-diagram-2-fill"></span> Add Relation
     </a>
 </div>
-<dl>
-{% for key, value in document.items() if not key.startswith('_') %}
-    <dt>{{ key }}</dt>
-    <dd>
-        <code>{{ value|tojson }}</code>
-    </dd>
-{% endfor %}
-</dl>
+<div>
+    <h2>Details</h2>
+    <p>These are the properties of this {{ schema.title | lower }}.</p>
+    <dl>
+    {% for key, value in instance.items() if not key.startswith('_') %}
+        <dt>{{ key }}</dt>
+        <dd>
+            <code>{{ value|tojson }}</code>
+        </dd>
+    {% endfor %}
+    </dl>
+</div>
 {% endblock %}

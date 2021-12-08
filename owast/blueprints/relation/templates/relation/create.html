@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% set title = 'Create relationship' %}
+{% set icon = 'diagram-2-fill' %}
+{% block content %}
+    <p>Create a PROV-DM Relations pointing from the one object to its origin.</p>
+    <div class="row">
+        <!-- To -->
+        <div class="col">
+            <h2>To</h2>
+            <dl>
+                <dt>Schema</dt>
+                <!-- TODO select schema and instance -->
+                <dd>{{ to_schema.title }}</dd>
+                {% for key, value in to_doc.items() if not key.startswith('_') and value %}
+                    <dt>{{ key }}</dt>
+                    <dd><code>{{ value | tojson }}</code></dd>
+                {% endfor %}
+            </dl>
+        </div>
+
+        <!-- Relation -->
+        <div class="col">
+            <h2><span class="bi bi-arrow-left"></span> Relation</h2>
+            <form method="post" action="{{ url_for('relation.create', from_schema_id=from_schema._id, from_document_id=from_doc._id, to_schema_id=to_schema._id, to_document_id=to_doc._id) }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            </form>
+        </div>
+
+        <!-- From -->
+        <div class="col">
+            <h2>From</h2>
+            <dl>
+                <dt>Schema</dt>
+                <dd>{{ from_schema.title }}</dd>
+                {% for key, value in from_doc.items() if not key.startswith('_') and value %}
+                    <dt>{{ key }}</dt>
+                    <dd><code>{{ value | tojson }}</code></dd>
+                {% endfor %}
+            </dl>
+        </div>
+    </div>
+{% endblock %}
