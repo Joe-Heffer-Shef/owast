@@ -1,7 +1,8 @@
 {% extends "layout.html" %}
 {% set title = schema.title %}
-{% set icon = 'cup' %}
+{% set icon = schema.icon or 'cup' %}
 {% block content %}
+<p>{{ schema.description }}</p>
 <div>
     <!-- Instantiate -->
     <a class="btn btn-success" href="{{ url_for('schema.add', schema_id=schema._id) }}"
@@ -16,12 +17,20 @@
         JSON Schema
     </a>
 
+    <!-- List instances -->
+    <a class="btn btn-primary" href="{{ url_for('schema.instances', schema_id=schema._id) }}"
+        title="List the instances of this schema">
+        <span class="bi bi-list"></span>
+        List
+    </a>
+
     <!-- Delete -->
     <a class="btn btn-danger" href="{{ url_for('schema.delete', schema_id=schema._id) }}">
         <span class="bi bi-trash-fill"></span>
         Delete
     </a>
 </div>
+
 <dl>
 {% for key, value in schema.items() if not key.startswith('_') %}
     <dt>{{ key }}</dt>

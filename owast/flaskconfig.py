@@ -4,3 +4,5 @@
 import os
 
 SECRET_KEY = os.environ['SECRET_KEY']
+SERVER_NAME = os.getenv('SERVER_NAME')
+PREFERRED_URL_SCHEME = os.getenv('PREFERRED_URL_SCHEME')

@@ -2,7 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://localhost/schema/61af8a8652f463d1fbcc1eff/schema.json",
   "title": "Tool",
-  "description": "A machine",
+  "icon": "tools",
+  "description": "A physical machine used to conduct experimental processes.",
   "type": "object",
   "properties": {
     "code": {

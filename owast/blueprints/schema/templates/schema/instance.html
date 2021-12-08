@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% set title = schema.title %}
+{% set icon = schema.icon %}
+{% block content %}
+<div>
+    <!-- Instantiate -->
+    <a class="btn btn-primary" href="{{ url_for('schema.detail', schema_id=schema._id) }}"
+        title="View this schema">
+        <span class="bi bi-braces"></span>
+        Schema
+    </a>
+</div>
+<dl>
+{% for key, value in document.items() if not key.startswith('_') %}
+    <dt>{{ key }}</dt>
+    <dd>
+        <code>{{ value|tojson }}</code>
+    </dd>
+{% endfor %}
+</dl>
+{% endblock %}

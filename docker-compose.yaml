@@ -45,12 +45,14 @@ services:
       - FLASK_ENV=development
       - MONGO_URI=mongodb://meta:27017/owast
       - BLUEPRINTS_DIR=owast/blueprints
+      - PREFERRED_URL_SCHEME=https
       # Gunicorn options
       # https://docs.gunicorn.org/en/stable/settings.html#settings
       - WSGI_APP=owast.app_factory:create_app()
       - GUNICORN_CMD_ARGS=--log-level debug --user www-data --group www-data --reload True --chdir /opt/owast --bind 0.0.0.0 --timeout 600 --config owast/gunicorn.conf.py
       # Blob storage settings
       - BLOB_CONN_STR=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://blob:10000/devstoreaccount1;
+      - JSON_SCHEMA_SPEC=https://json-schema.org/draft/2020-12/schema
     restart: always
 
   # Web server

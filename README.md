@@ -32,8 +32,28 @@ docker-compose logs --tail 100 -ft
 
 ## MongoDB shell
 
+This allows direct access to the NoSQL database shell:
+
 ```bash
 docker-compose exec meta mongosh
+```
+
+The PyMongo shell can be used to help develop the application:
+
+```bash
+docker-compose exec app python
+```
+
+Then run: (see the [PyMongo tutorial](https://pymongo.readthedocs.io/))
+
+```python
+import os
+import pymongo
+
+client = pymongo.MongoClient(os.environ['MONGO_URI'])
+database = client.owast
+collection = db.schemas
+schema = collection.find_one()
 ```
 
 # Maintenance

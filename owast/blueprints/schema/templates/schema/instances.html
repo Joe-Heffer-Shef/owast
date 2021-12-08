@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% set title = schema.title %}
+{% set icon = schema.icon or 'cup' %}
+{% block content %}
+<p>List of instances of this schema.</p>
+<ul>
+    {% for document in documents -%}
+    <li>
+        <a href="{{ url_for('schema.instance', schema_id=schema._id, document_id=document._id) }}">
+            <span class="bi bi-{{ schema.icon }}"></span>
+            {% for key, value in document.items() if not key.startswith('_') and value %}
+            {% if loop.index <= 3 %}
+                {{ key }} {{ value }}
+            {% endif -%}
+            {% endfor -%}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
