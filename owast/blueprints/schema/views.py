@@ -48,6 +48,7 @@ def create():
         schema = dict(
             title=flask.request.form['title'],
             description=flask.request.form['description'],
+            icon=flask.request.form['icon'],
             collection=flask.request.form['collection'].casefold(),
             type='object',
             properties=json.loads(flask.request.form['properties']),
@@ -156,6 +157,26 @@ def instance(schema_id: ObjectId, document_id: ObjectId):
 
     return flask.render_template('schema/instance.html', document=document,
                                  schema=schema)
+
+
+@blueprint.route('/<ObjectId:schema_id>/<ObjectId:document_id>.json')
+def instance_doc(schema_id: ObjectId, document_id: ObjectId):
+    """
+    View an instance of a schema as a JSON document
+    """
+    db = app.mongo.db  # type: flask_pymongo.wrappers.Database
+    schema = db.schemas.find_one_or_404(schema_id)
+    collection = getattr(db, schema['collection'])
+    document = collection.find_one_or_404(document_id)
+
+    document["$schema"] = os.environ['JSON_SCHEMA_SPEC']
+    document["$id"] = flask.url_for(flask.request.endpoint, _external=True,
+                                    schema_id=schema_id,
+                                    document_id=document_id)
+
+    return app.response_class(
+        bson.json_util.dumps(document, **flask.request.args),
+        mimetype='application/schema+json')
 
 
 @blueprint.route('/<ObjectId:schema_id>/list')

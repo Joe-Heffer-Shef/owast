@@ -17,7 +17,8 @@
 
 <!-- Schema description -->
 <div class="alert alert-info" role="alert">
-  <p>{{ schema.description }}</p>
+  <h4>Description</h4>
+  {{ schema.description }}
 </div>
 
 <!-- New object form -->
@@ -32,16 +33,13 @@
     {% set label_class = label_classes.get(property.type, 'form-label') %}
     {% set input_class = input_classes.get(property.type, 'form-control') -%}
     <!-- {{ name }} ({{ property.type }}) -->
-    <!-- >{{ property.minimum }} <{{ property.maximum }} -->
-    <!-- {{ property.minimum is none }} {{ property.maximum is none }} -->
-    <!-- {{ property.minimum | pprint }} {{ property.maximum | pprint }} -->
     <div class="mb-3">
         <label class="{{ label_class }}" for="{{ name }}">{{ name | replace('_', ' ')| title }}</label>
         <input class="{{ input_class }}" type="{{ input_type }}" name="{{ name }}" id="{{ name }}"
-            {% if name in schema.required %}required{% endif -%}
+            {% if name in schema.required %}required {% endif -%}
             {% if property.enum %}list="{{ name }}_list" {% endif -%}
-            {% if property.minimum is defined %}min="{{ property.minimum }}"{% endif -%}
-            {% if property.maximum is defined %}max="{{ property.maximum }}"{% endif -%}>
+            {% if property.minimum is defined %}min="{{ property.minimum }}" {% endif -%}
+            {% if property.maximum is defined %}max="{{ property.maximum }}" {% endif -%}>
         <div class="form-text">{{ property.description }}</div>
         {% if property.enum -%}
         <datalist id="{{ name }}_list">

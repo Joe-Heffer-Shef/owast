@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% set title = 'Experiment' %}
+{% set icon = 'align-bottom' %}
 {% block content %}
 <div>
     <a class="btn btn-primary" href="{{ url_for('container.list_') }}">
@@ -16,18 +17,6 @@
     </a>
 </div>
 <div>
-    <!-- Experiment info -->
-    <div>
-        <dl>
-            {% for key, value in experiment.items() if key != 'meta' %}
-            <dt>{{ key }}</dt>
-            <dd>
-                <pre>{{ value }}</pre>
-            </dd>
-            {% endfor %}
-        </dl>
-    </div>
-
     <!-- Metadata -->
     <div>
         <h2>Metadata</h2>
@@ -39,10 +28,10 @@
             </tr>
             </thead>
             <tbody>
-            {% for key, value in experiment.meta.items() %}
+            {% for key, value in experiment.items() %}
             <tr>
                 <td>{{ key }}</td>
-                <td>{{ value }}</td>
+                <td><code>{{ value | tojson }}</code></td>
             </tr>
             {% endfor %}
             </tbody>

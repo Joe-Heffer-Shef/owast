@@ -5,9 +5,16 @@
 <div>
     <!-- Instantiate -->
     <a class="btn btn-primary" href="{{ url_for('schema.detail', schema_id=schema._id) }}"
-        title="View this schema">
+        title="View the schema for this document">
+        <span class="bi bi-cup"></span>
+        Research Object
+    </a>
+
+    <!-- JSON document -->
+    <a class="btn btn-primary" href="{{ url_for('schema.instance_doc', schema_id=schema._id, document_id=document._id, indent='  ') }}"
+        title="View this document as a JSON document">
         <span class="bi bi-braces"></span>
-        Schema
+        JSON
     </a>
 </div>
 <dl>

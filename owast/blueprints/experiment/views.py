@@ -10,6 +10,7 @@ import pymongo.database
 import pymongo.collection
 import pymongo.results
 import azure.storage.blob
+from bson.objectid import ObjectId
 
 import owast.utils
 import owast.blob
@@ -84,14 +85,13 @@ def create():
                                  time=time, experiment_id=experiment_id)
 
 
-@blueprint.route('/<string:experiment_id>')
-def detail(experiment_id: str):
+@blueprint.route('/<ObjectId:experiment_id>')
+def detail(experiment_id: ObjectId):
     """
     Show the details of a particular experiment
     """
-    index = dict(experiment_id=experiment_id)
 
-    _experiment = app.mongo.db.experiments.find_one_or_404(index)
+    _experiment = app.mongo.db.experiments.find_one_or_404(experiment_id)
 
     # Show only certain fields
     experiment = {key: value for key, value in _experiment.items()
@@ -99,21 +99,20 @@ def detail(experiment_id: str):
                   if not key.startswith('_')}
 
     # Get artifacts for this experiment
-    artifacts = app.mongo.db.artifacts.find(index)
+    artifacts = app.mongo.db.artifacts.find(dict(experiment_id=experiment_id))
 
     return flask.render_template('experiment/detail.html',
                                  experiment=experiment, artifacts=artifacts)
 
 
-@blueprint.route('/<string:experiment_id>/delete')
-def delete(experiment_id: str):
+@blueprint.route('/<ObjectId:experiment_id>/delete')
+def delete(experiment_id: ObjectId):
     """
     Delete an experiment i.e. set deleted attribute to true.
     """
 
-    key = dict(experiment_id=experiment_id)
     experiments = app.mongo.db.experiments  # type: pymongo.collection.Collection
-    update_result = experiments.update_one(key, {
+    update_result = experiments.update_one(dict(_id=experiment_id), {
         '$set': dict(deleted=True)})  # type: pymongo.results.UpdateResult
     app.logger.debug(update_result.raw_result)
 

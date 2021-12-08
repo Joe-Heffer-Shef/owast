@@ -10,10 +10,10 @@
     {% for experiment in experiments %}
     <li>
         <i class="bi bi-align-bottom"></i>
-        <a href="{{ url_for('experiment.detail', experiment_id=experiment.experiment_id) }}">
-            {{ experiment.experiment_id }}</a>
-        <a class="btn btn-danger" href="{{ url_for('experiment.delete', experiment_id=experiment.experiment_id) }}"
-            title="Delete {{ experiment.experiment_id }}">
+        <a href="{{ url_for('experiment.detail', experiment_id=experiment._id) }}">
+            {{ experiment.name }}</a>
+        <a class="btn btn-danger" href="{{ url_for('experiment.delete', experiment_id=experiment._id) }}"
+            title="Delete {{ experiment._id }}">
             <span class="bi bi-trash-fill"></span>
         </a>
     </li>
