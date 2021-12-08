@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "http://localhost/schema/61b0a7c22d1e3a342f6c73b7/schema.json",
+  "title": "Experiment",
+  "description": "A research process such as a drilling procedure",
+  "collection": "experiments",
+  "type": "object",
+  "properties": {
+    "number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "number",
+    "name"
+  ]
+}
