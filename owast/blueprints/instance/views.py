@@ -1,5 +1,3 @@
-import os
-
 import flask
 from bson.objectid import ObjectId
 import bson.json_util
@@ -62,6 +60,7 @@ def document(schema_id: ObjectId, document_id: ObjectId):
 def list_(schema_id: ObjectId):
     db = app.mongo.db  # type: Database
     schema = db.schemas.find_one_or_404(schema_id)
+
     collection = getattr(db, schema['collection'])
     documents = collection.find()
     return flask.render_template('instance/list.html', schema=schema,

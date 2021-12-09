@@ -4,7 +4,7 @@ import os
 import bson.json_util
 import flask
 from bson.objectid import ObjectId
-from flask_pymongo.wrappers import Collection, Database
+from flask_pymongo.wrappers import Collection
 from pymongo.results import UpdateResult, InsertOneResult, DeleteResult
 
 from .forms import SchemaForm
@@ -13,9 +13,16 @@ app = flask.current_app
 blueprint = flask.Blueprint('schema', __name__, url_prefix='/schema',
                             template_folder='templates')
 
+# These are properties that contain JSON objects or arrays
 JSON_FIELDS = {
     'properties',
     'required',
+}
+
+# Don't allow users to overwrite these collections
+SYSTEM_COLLECTIONS = {
+    'schemas',
+    'relations',
 }
 
 
@@ -36,8 +43,8 @@ def create():
     # Process form submission
     if form.validate_on_submit():
         # Prevent collection name conflict
-        if flask.request.form['collection'] == 'schemas':
-            raise ValueError('Invalid collection name')
+        if flask.request.form['collection'] in SYSTEM_COLLECTIONS:
+            raise ValueError('Forbidden collection name')
 
         # Build research object from user input
         schema = dict(

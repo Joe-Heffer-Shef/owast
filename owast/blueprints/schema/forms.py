@@ -1,5 +1,5 @@
 import flask_wtf
-from wtforms import StringField, TextAreaField, RadioField
+from wtforms import StringField, TextAreaField, RadioField, BooleanField
 from wtforms.validators import InputRequired
 
 PROV_STRUCTURES = [
@@ -34,3 +34,4 @@ class SchemaForm(flask_wtf.FlaskForm):
                                            '<a href="https://json-schema.org/">JSON Schema.</a>')
     required = TextAreaField(default='[]',
                              description='A JSON list of mandatory property names.')
+    starred = BooleanField(default=False)

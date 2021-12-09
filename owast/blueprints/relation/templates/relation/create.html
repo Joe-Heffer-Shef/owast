@@ -2,41 +2,88 @@
 {% set title = 'Create relationship' %}
 {% set icon = 'diagram-2-fill' %}
 {% block content %}
-    <p>Create a PROV-DM Relations pointing from the one object to its origin.</p>
-    <div class="row">
-        <!-- To -->
-        <div class="col">
-            <h2>To</h2>
-            <dl>
-                <dt>Schema</dt>
-                <!-- TODO select schema and instance -->
-                <dd>{{ to_schema.title }}</dd>
-                {% for key, value in to_doc.items() if not key.startswith('_') and value %}
-                    <dt>{{ key }}</dt>
-                    <dd><code>{{ value | tojson }}</code></dd>
+<p>Create a PROV-DM Relations pointing <em>from</em> the first object
+    <em>to</em> its the object that created it.</p>
+{% if not to_schema %}
+<div class="alert alert-primary">Select an object to relate to below.</div>
+{% endif %}
+<div class="row">
+    <!-- To -->
+    <div class="col border rounded border-primary">
+        <h2>To</h2>
+        <dl>
+            {% if to_schema %}
+            <dt>Research Object</dt>
+            <dd>{{ to_schema.title }}</dd>
+            <dt>PROV Type</dt>
+            <dd>{{ to_schema.prov_type }}</dd>
+            {% else %}
+            <form method="get" action="{{ url_for(request.endpoint) }}">
+                <input type="hidden" name="from_schema_id" value="{{ from_schema._id }}">
+                <input type="hidden" name="from_document_id" value="{{ from_doc._id }}">
+                <label for="to_schema_id">Research Object</label>
+                <select class="form-select" id="to_schema_id" name="to_schema_id"
+                    aria-label="Select schema">
+                {% for schema in research_objects -%}
+                    <option value="{{ schema._id }}">{{ schema.title }}</option>
                 {% endfor %}
-            </dl>
-        </div>
-
-        <!-- Relation -->
-        <div class="col">
-            <h2><span class="bi bi-arrow-left"></span> Relation</h2>
-            <form method="post" action="{{ url_for('relation.create', from_schema_id=from_schema._id, from_document_id=from_doc._id, to_schema_id=to_schema._id, to_document_id=to_doc._id) }}">
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                </select>
+                <button type="submit" class="btn btn-primary">Select</button>
             </form>
-        </div>
-
-        <!-- From -->
-        <div class="col">
-            <h2>From</h2>
-            <dl>
-                <dt>Schema</dt>
-                <dd>{{ from_schema.title }}</dd>
-                {% for key, value in from_doc.items() if not key.startswith('_') and value %}
-                    <dt>{{ key }}</dt>
-                    <dd><code>{{ value | tojson }}</code></dd>
+            {% endif %}
+            {% if not to_doc %}
+            <form method="get" action="{{ url_for(request.endpoint) }}">
+                <input type="hidden" name="from_schema_id" value="{{ from_schema._id }}">
+                <input type="hidden" name="from_document_id" value="{{ from_doc._id }}">
+                <input type="hidden" name="from_schema_id" value="{{ to_schema._id }}">
+                <label for="to_doc_id">Instance</label>
+                <select class="form-select" id="to_doc_id" name="to_doc_id" aria-label="Select instance">
+                {% for instance in instances -%}
+                    <option value="{{ instance._id }}">{{ instance }}</option>
                 {% endfor %}
-            </dl>
-        </div>
+                </select>
+                <button type="submit" class="btn btn-primary">Select</button>
+            </form>
+            {% endif %}
+        </dl>
     </div>
+
+    <!-- Relation -->
+    <div class="col">
+        <h2><span class="bi bi-arrow-left"></span> Relation</h2>
+        {% if to_doc_id %}
+        <form method="post" action="{{ url_for('relation.create', from_schema_id=from_schema._id, from_document_id=from_doc._id, to_schema_id=to_schema._id, to_document_id=to_doc._id) }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <select class="form-select" id="relation_type"
+                    name="relation_type">
+                <option>Used</option>
+                <option>WasGeneratedBy</option>
+                <option>WasInformedBy</option>
+                <option>WasDerivedFrom</option>
+                <option>WasAttributedTo</option>
+                <option>WasAssociatedWith</option>
+                <option>ActedOnBehalfOf</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Select</button>
+        </form>
+        {% else %}
+        <div class="alert alert-warning">Select an object to relate to.</div>
+        {% endif %}
+    </div>
+
+    <!-- From -->
+    <div class="col border rounded border-primary">
+        <h2><span class="bi bi-{{ from_schema.icon or 'cup' }}"></span> From</h2>
+        <dl>
+            <dt>Research Object</dt>
+            <dd>{{ from_schema.title }}</dd>
+            <dt>PROV Type</dt>
+            <dd>{{ from_schema.prov_type }}</dd>
+            {% for key, value in from_doc.items() if not key.startswith('_') and value %}
+                <dt>{{ key }}</dt>
+                <dd><code>{{ value | tojson }}</code></dd>
+            {% endfor %}
+        </dl>
+    </div>
+</div>
 {% endblock %}

@@ -10,9 +10,11 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+  # Deploy an Azure Web App
+  # https://docs.microsoft.com/en-us/azure/devops/pipelines/targets/webapp
   - task: AzureWebApp
     inputs:
       azureSubscription: a8060647-8f7f-47ca-bec3-e79e4ab2bcdf
       appType: webAppLinux
       appName: ingress
-      package:
+      package: 
