@@ -113,3 +113,23 @@ def edit(schema_id: ObjectId, document_id: ObjectId):
 
     return flask.render_template('instance/detail.html', instance=instance,
                                  schema=schema)
+
+
+@blueprint.route('/<ObjectId:schema_id>/<ObjectId:document_id>/dot')
+def dot(schema_id: ObjectId, document_id: ObjectId):
+    """
+    GraphViz DOT notation
+
+    http://www.graphviz.org/doc/info/lang.html
+    """
+
+    import graphviz
+
+    db = app.mongo.db  # type: Database
+    schema = db.schemas.find_one_or_404(schema_id)
+    collection = getattr(db, schema['collection'])
+    instance = collection.find_one_or_404(document_id)
+
+    dot = graphviz.Digraph('round-table', comment='The Round Table')
+
+    return dot.source
