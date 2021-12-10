@@ -1,42 +1,17 @@
-from typing import Mapping
+import json
 
 import flask
-import flask_wtf
-from pymongo.results import InsertOneResult
-from flask_pymongo.wrappers import Collection, Database
-
 from bson.objectid import ObjectId
+from flask_pymongo.wrappers import Collection, Database
+from pymongo.results import InsertOneResult
+from types import SimpleNamespace
 
 import owast.blueprints.relation.forms.used
+from owast.blueprints.relation.constants import PROV_RELATION, DEFAULT_RELATION
 
 app = flask.current_app
 blueprint = flask.Blueprint('relation', __name__, url_prefix='/relation',
                             template_folder='templates')
-
-# Influence map
-# https://www.w3.org/TR/prov-dm/#concept-influence
-# Which relations should be used to connect each type?
-# https://www.w3.org/TR/prov-dm/#prov-dm-types-and-relations
-# Mapping[FromType[ToType][Relation]]
-PROV_RELATION = dict(
-    Activity=dict(
-        Activity='wasInformedBy',
-        Entity='used',
-        Agent='wasAssociatedWith',
-    ),
-    Entity=dict(
-        Activity='wasGeneratedBy',
-        Entity='wasDerivedFrom',
-        Agent='wasAttributedTo',
-    ),
-    Agent=dict(
-        # https://www.w3.org/TR/prov-dm/#concept-delegation
-        Agent='actedOnBehalfOf',
-    ),
-)  # type: Mapping[str, Mapping[str, str]]
-
-# generic relation between any two types
-DEFAULT_RELATION = 'wasInfluencedBy'
 
 RELATION_FORMS = dict(
     used=owast.blueprints.relation.forms.used.UsedForm,
@@ -62,30 +37,46 @@ def create():
     db = app.mongo.db  # type: Database
     schemas = db.schemas  # type: Collection
 
-    # Build document
-    # TODO additional params (metadata for relationship)
-    relation = dict(
-        type=str(),
-        # From
-        influencee_schema_id=ObjectId(
-            flask.request.args['influencee_schema_id']),
-        influencee_id=ObjectId(flask.request.args['influencee_id']),
-    )
+    # Load user input (GET or POST)
+    relation = {key: value for key, value in
+                (flask.request.form if flask.request.method == 'POST'
+                 else flask.request.args).items()
+                # Ignore hidden fields such as CSRF token
+                if not key.startswith('_')}
+    relation.setdefault('type', DEFAULT_RELATION)
 
-    # Get "From" object
-    influencee_schema = schemas.find_one_or_404(
-        relation['influencee_schema_id'])
+    # Initialise form widgets
+    form_class = RELATION_FORMS.get(relation['type'], DEFAULT_FORM)
+    form = form_class(**relation)
+
+    # Process form submission
+    if form.validate_on_submit():
+        # Create new relation document from for data
+        rel = SimpleNamespace(**relation)
+        form.populate_obj(rel)
+        rel_doc = rel.__dict__.copy()
+        rel_doc.update(rel_doc.pop('attributes'))
+
+        relations = db.relations  # type: Collection
+        result = relations.insert_one(rel_doc)  # type: InsertOneResult
+        app.logger.info(result.acknowledged)
+        app.logger.info(f"Created relations id '{result.inserted_id}'")
+
+        return flask.redirect(
+            flask.url_for('relation.detail', relation_id=result.inserted_id))
+
+    # Get influencee object (from)
+    influencee_schema = schemas.find_one_or_404(ObjectId(
+        relation['influencee_schema_id']))
     influencee_collection = getattr(db, influencee_schema[
         'collection'])  # type:Collection
-    from_doc = influencee_collection.find_one_or_404(relation['influencee_id'])
+    influencee = influencee_collection.find_one_or_404(ObjectId(
+        relation['influencee_id']))
 
-    # Get "To" object
-    # "To" schema
+    # Influencer schema and collection
     try:
-        relation['influencer_schema_id'] = ObjectId(
-            flask.request.args['influencer_schema_id'])
-        influencer_schema = schemas.find_one_or_404(
-            relation['influencer_schema_id'])
+        influencer_schema = schemas.find_one_or_404(ObjectId(
+            relation['influencer_schema_id']))
         influencer_collection = getattr(db, influencer_schema[
             'collection'])  # type:Collection
         instances = influencer_collection.find()
@@ -94,40 +85,37 @@ def create():
         influencer_collection = None
         instances = list()
 
-    # "To" document
+    # Influencer document
     try:
-        relation['influencer_id'] = ObjectId(
-            flask.request.args['influencer_id'])
-        influencer = influencer_collection.find_one_or_404(
-            relation['influencer_id'])
-    except KeyError:
+        influencer = influencer_collection.find_one_or_404(ObjectId(
+            relation['influencer_id']))
+    except (KeyError, AttributeError):
         influencer = None
 
+    # Relation
     # Get relation type (determined by from-schema and to-schema)
     try:
-        relation['type'] = PROV_RELATION[influencee_schema['prov_type']].get(
-            influencer_schema['prov_type'], DEFAULT_RELATION)
+        relation['type'] = PROV_RELATION[influencee_schema['prov_type']][
+            influencer_schema['prov_type']]
     except KeyError:
         pass
 
-    form_class = RELATION_FORMS.get(relation['type'], DEFAULT_FORM)
-    form = form_class(**relation)
+    # Convert to human-readable format to display in the HTML form
+    instances = ((obj['_id'], {k: v for k, v in obj.items()
+                               if not k.startswith('_') and v})
+                 for obj in instances if obj['_id'] != influencee['_id'])
 
-    # Process form submission
-    if form.validate_on_submit():
-        relations = db.relations  # type: Collection
-        result = relations.insert_one(relation)  # type: InsertOneResult
-        app.logger.info(result.acknowledged)
-        app.logger.info(f"Created relations id {result.inserted_id}")
-
-    instances = (
-        (obj['_id'], {k: v for k, v in obj.items()
-                      if not k.startswith('_') and v})
-        for obj in instances)
-
+    # Update form values
+    form.process(**relation)
     return flask.render_template(
         template_name_or_list='relation/create.html', relation=relation,
-        influencee_schema=influencee_schema, from_doc=from_doc,
+        influencee_schema=influencee_schema, influencee=influencee,
         influencer_schema=influencer_schema,
         influencer=influencer, research_objects=schemas.find(),
         instances=instances, form=form)
+
+
+@blueprint.route('/<ObjectId:relation_id>')
+def detail(relation_id: ObjectId):
+    relation = app.mongo.db.relations.find_one_or_404(relation_id)
+    return flask.render_template('relation/detail.html', relation=relation)

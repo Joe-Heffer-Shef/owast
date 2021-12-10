@@ -2,9 +2,13 @@
 {% set title = 'Create relationship' %}
 {% set icon = 'diagram-2-fill' %}
 {% block content %}
-<pre>{{ request.args }}</pre>
-<p>Create a PROV-DM relation pointing <em>from</em> the first item
-    <em>to</em> the item that influenced it.</p>
+<p>
+    Create a <a href="https://www.w3.org/TR/2013/NOTE-prov-primer-20130430/">W3C PROV</a>
+    relation pointing <em>from</em> the first item <em>to</em> the item that influenced it.
+</p>
+<pre>{% for key, value in relation.items() -%}
+{{ key }}: {{ value|tojson }}
+{% endfor -%}</pre>
 {% if not influencer_schema %}
 <div class="alert alert-primary">Select an object to relate to below.</div>
 {% endif -%}
@@ -12,7 +16,7 @@
 <div class="row">
     <!-- To -->
     <div class="col border rounded border-primary">
-        <h2>To</h2>
+        <h2>Influencer</h2>
         <dl>
             {% if influencer_schema -%}
             <dt>Research Object</dt>
@@ -22,7 +26,8 @@
             {% else -%}
             <form method="get" action="{{ url_for(request.endpoint) }}">
                 <input type="hidden" name="influencee_schema_id" value="{{ influencee_schema._id }}">
-                <input type="hidden" name="influencee_id" value="{{ from_doc._id }}">
+                <input type="hidden" name="influencee_id" value="{{ influencee._id }}">
+                <input type="hidden" name="type" value="{{ relation.type }}">
                 <label for="influencer_schema_id">Research Object</label>
                 <select class="form-select" id="influencer_schema_id" name="influencer_schema_id"
                     aria-label="Select schema">
@@ -30,14 +35,15 @@
                     <option value="{{ schema._id }}">{{ schema.title }}</option>
                 {% endfor %}
                 </select>
-                <button type="submit" class="btn btn-primary">Select</button>
+                <button type="submit" class="btn btn-success">Select</button>
             </form>
             {% endif -%}
             {% if influencer_schema and not influencer -%}
             <form method="get" action="{{ url_for(request.endpoint) }}">
                 <input type="hidden" name="influencee_schema_id" value="{{ influencee_schema._id }}">
-                <input type="hidden" name="influencee_id" value="{{ from_doc._id }}">
+                <input type="hidden" name="influencee_id" value="{{ influencee._id }}">
                 <input type="hidden" name="influencer_schema_id" value="{{ influencer_schema._id }}">
+                <input type="hidden" name="type" value="{{ relation.type }}">
                 <label for="influencer_id">Instance</label>
                 <select class="form-select" id="influencer_id" name="influencer_id" aria-label="Select instance">
                 {% for instance_id, instance in instances -%}
@@ -46,7 +52,7 @@
                     </option>
                 {% endfor -%}
                 </select>
-                <button type="submit" class="btn btn-primary">Select</button>
+                <button type="submit" class="btn btn-success">Select</button>
             </form>
             {% endif -%}
             {% if influencer %}
@@ -61,40 +67,43 @@
     <!-- Relation -->
     <div class="col">
         <h2><span class="bi bi-arrow-left"></span> Relation</h2>
-        {% if influencer_schema %}
-        <dl>
-            <dt>Relation Type</dt>
-            <dd>{{ relation.type }}</dd>
-        </dl>
-        {% if influencer %}
-        <form method="post" action="{{ url_for(request.endpoint) }}">
+        {% if not influencer %}
+        <div class="alert alert-warning">Select an instance to relate to.</div>
+        {% else %}
+        <pre>{{ form.__class__.__name__ }}</pre>
+        <form method="post" action="{{ url_for('relation.create') }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
             {% for field in form -%}
-            {% if field.__class__.__name__ !='ObjectIdStringField' -%}
-                {{ field.label(class='form-label') }}
-            {% endif -%}
-            {{ field(class='form-control') }}
+            <div class="mt-3">
+                {% if field.__class__.__name__ !='ObjectIdStringField' -%}
+                    {{ field.label(class='form-label') }}
+                {% endif -%}
+                {% for error in field.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endfor -%}
+                {{ field(class='form-control') }}
+                <div class="form-text">{{ field.description }}</div>
+            </div>
             {% endfor -%}
-            <button class="btn btn-primary">
+            <button class="btn btn-success mt-3">
                 <span class="bi bi-diagram-2-fill"></span> Create</button>
         </form>
-        {% else %}
-        <div class="alert alert-warning">Select an instance to relate to.</div>
-        {% endif %}
-        {% else %}
-        <div class="alert alert-warning">
-            Select an research object to relate to.</div>
         {% endif %}
     </div>
 
     <!-- From -->
     <div class="col border rounded border-primary">
-        <h2><span class="bi bi-{{ influencee_schema.icon or 'cup' }}"></span> From</h2>
+        <h2>Influencee</h2>
+        <a class="btn btn-primary" href="{{ url_for('instance.detail', schema_id=influencee_schema._id, document_id=influencee._id) }}">
+            <span class="bi bi-{{ influencee_schema.icon or 'cup' }}"></span>
+            Detail
+        </a>
         <dl>
             <dt>Research Object</dt>
             <dd>{{ influencee_schema.title }}</dd>
             <dt>PROV Type</dt>
             <dd>{{ influencee_schema.prov_type }}</dd>
-            {% for key, value in from_doc.items() if not key.startswith('_') and value %}
+            {% for key, value in influencee.items() if not key.startswith('_') and value %}
                 <dt>{{ key }}</dt>
                 <dd><code>{{ value | tojson }}</code></dd>
             {% endfor %}

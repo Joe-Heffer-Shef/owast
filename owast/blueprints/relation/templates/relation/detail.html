@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% set title = 'Relationship' %}
+{% set icon = 'diagram-2-fill' %}
+{% block content %}
+<dl>
+{% for key, value in relation.items() if not key.startswith('_') and value.__class__.__name__ != 'ObjectId' -%}
+<dt>{{ key }}</dt>
+<dd><code>{{ value }}</code></dd>
+{% endfor -%}
+</dl>
+{% endblock %}

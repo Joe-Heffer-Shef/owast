@@ -1,13 +1,11 @@
 import json
 
 import flask_wtf
-import wtforms
-from wtforms import StringField, TextAreaField, HiddenField
-from wtforms.validators import Length
+from wtforms import TextAreaField, HiddenField, SelectField
+from wtforms.validators import DataRequired
+from bson.objectid import ObjectId
 
-
-def json_string(_, field: wtforms.Field):
-    json.loads(field.data)
+from ..constants import DEFAULT_RELATION, RELATION_TYPES
 
 
 class ObjectIdStringField(HiddenField):
@@ -17,9 +15,15 @@ class ObjectIdStringField(HiddenField):
     https://docs.mongodb.com/manual/reference/method/ObjectId/
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.validators = list(self.validators) + [Length(min=24, max=24)]
+    def process_formdata(self, valuelist: list):
+        if valuelist:
+            self.data = ObjectId(valuelist[0])
+
+
+class JsonTextAreaField(TextAreaField):
+    def process_formdata(self, valuelist: list):
+        if valuelist:
+            self.data = json.loads(valuelist[0])
 
 
 class WasInfluencedByForm(flask_wtf.FlaskForm):
@@ -38,12 +42,14 @@ class WasInfluencedByForm(flask_wtf.FlaskForm):
         # Use flask-seasurf instead of wtforms CSRF protection
         csrf = False
 
-    influencee_schema_id = ObjectIdStringField()
-    influencee_id = ObjectIdStringField()  # o2
-    influencer_schema_id = ObjectIdStringField()
-    influencer_id = ObjectIdStringField()  # o1
-    attributes = TextAreaField(  # attrs
-        validators=[json_string],
+    type = SelectField(default=DEFAULT_RELATION, validators=[DataRequired()],
+                       choices=RELATION_TYPES, render_kw=dict(readonly=True))
+    influencee_schema_id = ObjectIdStringField(validators=[DataRequired()])
+    influencee_id = ObjectIdStringField(validators=[DataRequired()])  # o2
+    influencer_schema_id = ObjectIdStringField(validators=[DataRequired()])
+    influencer_id = ObjectIdStringField(validators=[DataRequired()])  # o1
+    attributes = JsonTextAreaField(  # attrs
         default='{}',
+        description="JSON object (key-value pairs)",
         render_kw={'class': 'text-monospace form-control'},
     )
