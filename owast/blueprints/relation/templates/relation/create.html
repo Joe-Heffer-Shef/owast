@@ -2,27 +2,29 @@
 {% set title = 'Create relationship' %}
 {% set icon = 'diagram-2-fill' %}
 {% block content %}
-<p>Create a PROV-DM Relations pointing <em>from</em> the first object
-    <em>to</em> its the object that created it.</p>
-{% if not to_schema %}
+<pre>{{ request.args }}</pre>
+<p>Create a PROV-DM relation pointing <em>from</em> the first item
+    <em>to</em> the item that influenced it.</p>
+{% if not influencer_schema %}
 <div class="alert alert-primary">Select an object to relate to below.</div>
-{% endif %}
+{% endif -%}
+
 <div class="row">
     <!-- To -->
     <div class="col border rounded border-primary">
         <h2>To</h2>
         <dl>
-            {% if to_schema %}
+            {% if influencer_schema -%}
             <dt>Research Object</dt>
-            <dd>{{ to_schema.title }}</dd>
+            <dd>{{ influencer_schema.title }}</dd>
             <dt>PROV Type</dt>
-            <dd>{{ to_schema.prov_type }}</dd>
-            {% else %}
+            <dd>{{ influencer_schema.prov_type }}</dd>
+            {% else -%}
             <form method="get" action="{{ url_for(request.endpoint) }}">
-                <input type="hidden" name="from_schema_id" value="{{ from_schema._id }}">
-                <input type="hidden" name="from_document_id" value="{{ from_doc._id }}">
-                <label for="to_schema_id">Research Object</label>
-                <select class="form-select" id="to_schema_id" name="to_schema_id"
+                <input type="hidden" name="influencee_schema_id" value="{{ influencee_schema._id }}">
+                <input type="hidden" name="influencee_id" value="{{ from_doc._id }}">
+                <label for="influencer_schema_id">Research Object</label>
+                <select class="form-select" id="influencer_schema_id" name="influencer_schema_id"
                     aria-label="Select schema">
                 {% for schema in research_objects -%}
                     <option value="{{ schema._id }}">{{ schema.title }}</option>
@@ -30,20 +32,28 @@
                 </select>
                 <button type="submit" class="btn btn-primary">Select</button>
             </form>
-            {% endif %}
-            {% if not to_doc %}
+            {% endif -%}
+            {% if influencer_schema and not influencer -%}
             <form method="get" action="{{ url_for(request.endpoint) }}">
-                <input type="hidden" name="from_schema_id" value="{{ from_schema._id }}">
-                <input type="hidden" name="from_document_id" value="{{ from_doc._id }}">
-                <input type="hidden" name="from_schema_id" value="{{ to_schema._id }}">
-                <label for="to_doc_id">Instance</label>
-                <select class="form-select" id="to_doc_id" name="to_doc_id" aria-label="Select instance">
-                {% for instance in instances -%}
-                    <option value="{{ instance._id }}">{{ instance }}</option>
-                {% endfor %}
+                <input type="hidden" name="influencee_schema_id" value="{{ influencee_schema._id }}">
+                <input type="hidden" name="influencee_id" value="{{ from_doc._id }}">
+                <input type="hidden" name="influencer_schema_id" value="{{ influencer_schema._id }}">
+                <label for="influencer_id">Instance</label>
+                <select class="form-select" id="influencer_id" name="influencer_id" aria-label="Select instance">
+                {% for instance_id, instance in instances -%}
+                    <option value="{{ instance_id }}">
+                        {{ instance|tojson }}
+                    </option>
+                {% endfor -%}
                 </select>
                 <button type="submit" class="btn btn-primary">Select</button>
             </form>
+            {% endif -%}
+            {% if influencer %}
+            {% for key, value in influencer.items() if not key.startswith('_') and value -%}
+            <dt>{{ key }}</dt>
+            <dd><code>{{ value | tojson }}</code></dd>
+            {% endfor %}
             {% endif %}
         </dl>
     </div>
@@ -51,34 +61,39 @@
     <!-- Relation -->
     <div class="col">
         <h2><span class="bi bi-arrow-left"></span> Relation</h2>
-        {% if to_doc_id %}
-        <form method="post" action="{{ url_for('relation.create', from_schema_id=from_schema._id, from_document_id=from_doc._id, to_schema_id=to_schema._id, to_document_id=to_doc._id) }}">
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-            <select class="form-select" id="relation_type"
-                    name="relation_type">
-                <option>Used</option>
-                <option>WasGeneratedBy</option>
-                <option>WasInformedBy</option>
-                <option>WasDerivedFrom</option>
-                <option>WasAttributedTo</option>
-                <option>WasAssociatedWith</option>
-                <option>ActedOnBehalfOf</option>
-            </select>
-            <button type="submit" class="btn btn-primary">Select</button>
+        {% if influencer_schema %}
+        <dl>
+            <dt>Relation Type</dt>
+            <dd>{{ relation.type }}</dd>
+        </dl>
+        {% if influencer %}
+        <form method="post" action="{{ url_for(request.endpoint) }}">
+            {% for field in form -%}
+            {% if field.__class__.__name__ !='ObjectIdStringField' -%}
+                {{ field.label(class='form-label') }}
+            {% endif -%}
+            {{ field(class='form-control') }}
+            {% endfor -%}
+            <button class="btn btn-primary">
+                <span class="bi bi-diagram-2-fill"></span> Create</button>
         </form>
         {% else %}
-        <div class="alert alert-warning">Select an object to relate to.</div>
+        <div class="alert alert-warning">Select an instance to relate to.</div>
+        {% endif %}
+        {% else %}
+        <div class="alert alert-warning">
+            Select an research object to relate to.</div>
         {% endif %}
     </div>
 
     <!-- From -->
     <div class="col border rounded border-primary">
-        <h2><span class="bi bi-{{ from_schema.icon or 'cup' }}"></span> From</h2>
+        <h2><span class="bi bi-{{ influencee_schema.icon or 'cup' }}"></span> From</h2>
         <dl>
             <dt>Research Object</dt>
-            <dd>{{ from_schema.title }}</dd>
+            <dd>{{ influencee_schema.title }}</dd>
             <dt>PROV Type</dt>
-            <dd>{{ from_schema.prov_type }}</dd>
+            <dd>{{ influencee_schema.prov_type }}</dd>
             {% for key, value in from_doc.items() if not key.startswith('_') and value %}
                 <dt>{{ key }}</dt>
                 <dd><code>{{ value | tojson }}</code></dd>

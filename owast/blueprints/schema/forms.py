@@ -15,6 +15,7 @@ class SchemaForm(flask_wtf.FlaskForm):
     """
 
     class Meta:
+        # Use flask-seasurf instead of wtforms CSRF protection
         csrf = False
 
     title = StringField(validators=[InputRequired()])
