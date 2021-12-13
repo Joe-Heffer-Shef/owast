@@ -3,22 +3,30 @@
 {% set icon = 'search' %}
 {% block content %}
 <form method="get" action="{{ url_for(request.endpoint) }}">
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-
     <!-- Collection -->
     <label class=form-label" for="collection">Research Object</label>
     <select class="form-control" name="collection" id="collection">
-    {% for schema, collection in collections.items() %}
-        <option value="{{ collection }}">{{ schema }}</option>
-    {% endfor %}
+    {% for schema, collection in collections.items() -%}
+        <option value="{{ collection }}"{% if collection == selected_collection %} selected{% endif %}>{{ schema }}</option>
+    {% endfor -%}
     </select>
 
     <!-- Query -->
     <label class="form-label" for="query">Query</label>
     <textarea class="form-control" id="query" name="query" class="form-control
-    font-monospace" rows="5">{}</textarea>
+        font-monospace" rows="3">{{ query or '{}' }}</textarea>
+    <div class="form-text">JSON filter</div>
 
     <!-- Submit -->
-    <input type="submit" class="btn btn-success" value="Search">
+    <button type="submit" class="btn btn-primary mt-3">
+        <i class="bi bi-search"></i> Search</button>
 </form>
+<div>
+    <h2>Results</h2>
+    <ul>
+    {% for result in results -%}
+        <li><a href="{{ url_for('instance.detail', schema_id=selected_schema._id, document_id=result._id) }}">{{ result }}</a></li>
+    {% endfor %}
+    </ul>
+</div>
 {% endblock %}
