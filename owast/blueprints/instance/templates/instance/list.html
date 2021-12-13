@@ -2,21 +2,34 @@
 {% set title = schema.title %}
 {% set icon = schema.icon or 'cup' %}
 {% block content %}
+<p>{{ schema.description }}</p>
 <div class="menu border-bottom pb-3 mb-3">
     <a class="btn btn-primary" href="{{ url_for('instance.create', schema_id=schema._id) }}">
         <span class="bi bi-plus"></span> Add {{ schema.title }}</a>
 </div>
-<p>List of instances of this schema.</p>
-<ul>
-    {% for document in documents -%}
-    <li>
-        {{ document._id.generation_time }}
-        <a href="{{ url_for('instance.detail', schema_id=schema._id, document_id=document._id) }}">
-            {% for key, value in document.items() if not key.startswith('_') and value %}
-            {% if loop.index <= 3 %}{{ key }}: {{ value }}{% endif -%}
-            {% endfor -%}
-        </a>
-    </li>
-    {% endfor %}
-</ul>
+<p>Below is a list of instances of {{ schema.collection }}:</p>
+<table class="table table-striped table-bordered">
+<caption>Instances of {{ schema.collection }}</caption>
+{% for document in documents -%}
+{% set url=url_for('instance.detail', schema_id=schema._id, document_id=document._id) -%}
+    {% if loop.index == 1 %}
+    <thead class="table-dark">
+        <th>Detail</th>
+        <th>Unique Identifier</th>
+        <th>Created</th>
+        {% for key in document.keys() if not key.startswith('_') -%}
+        <th>{{ key | title }}</th>
+        {% endfor %}
+    </thead>
+    {% endif %}
+    <tr>
+        <td><a class="btn btn-primary" href="{{ url }}">Detail</a></td>
+        <td><a href="{{ url }}">{{ document._id }}</a></td>
+        <td>{{ document._id.generation_time.isoformat() }}</td>
+        {% for key, value in document.items() if not key.startswith('_') -%}
+        <td>{{ value }}</td>
+        {% endfor -%}
+    </tr>
+{% endfor %}
+</table>
 {% endblock %}
