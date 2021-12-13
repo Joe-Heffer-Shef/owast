@@ -19,7 +19,8 @@ class SchemaForm(flask_wtf.FlaskForm):
         csrf = False
 
     title = StringField(validators=[InputRequired()])
-    collection = StringField(description='The plural of the title')
+    collection = StringField(
+        description='The plural of the title (defaults to title)')
     description = StringField()
     prov_type = RadioField(
         label='PROV Type',
