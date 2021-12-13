@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Advanced Manufacturing Research Centre (AMRC) One Way Assembly Sensor-based digital verification Technology (OWAST) database">
-  <meta name="author" content="Joe Heffer">
+  <meta name="author" content="The University of Sheffield IT Services">
 
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/bootstrap-icons.css') }}">
@@ -33,28 +33,13 @@
       <a class="nav-link" href="{{ url_for('main.search') }}"><span class="bi bi-search"></span> Search</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="{{ url_for('schema.list_') }}">
-        <span class="bi bi-cup"></span>
-        Research Objects
-      </a>
+      <a class="nav-link" href="{{ url_for('schema.list_') }}"><span class="bi bi-cup"></span> Research Objects</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="{{ url_for('container.list_') }}">
-        <span class="bi bi-folder"></span>
-        Containers
-      </a>
+      <a class="nav-link" href="{{ url_for('container.list_') }}"><span class="bi bi-folder"></span> Containers</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="{{ url_for('settings.settings') }}">
-        <span class="bi bi-gear-fill"></span>
-        Settings
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{{ url_for('service.list_') }}">
-        <span class="bi bi-activity"></span>
-        Status
-      </a>
+      <a class="nav-link" href="{{ url_for('service.list_') }}"><span class="bi bi-activity"></span> Status</a>
     </li>
   </ul>
 </nav>
@@ -63,7 +48,7 @@
 
 <!-- Flashed messages -->
 <div id="flash">
-{% with messages = get_flashed_messages() %}
+{% with messages = get_flashed_messages() -%}
 {% for message in messages %}
   <div class="alert alert-primary" role="alert">
     {{ message }}
@@ -74,11 +59,8 @@
 
 <!-- Content -->
 <div id="content">
-<h1>
-    {% if icon %}<i class="bi bi-{{ icon }}"></i>{% endif %}
-    {{ title }}
-</h1>
-{% block content %}{% endblock %}
+<h1>{% if icon %}<i class="bi bi-{{ icon }}"></i>{% endif %} {{ title }}</h1>
+{% block content %}{% endblock -%}
 </div>
 
 <div class="footer text-center">
