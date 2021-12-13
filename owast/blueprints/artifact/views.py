@@ -16,6 +16,7 @@ from werkzeug.datastructures import FileStorage
 
 import owast.utils
 import owast.blob
+from .forms import ArtifactForm
 
 app = flask.current_app
 blueprint = flask.Blueprint('artifact', __name__, url_prefix='/artifact',
@@ -24,11 +25,17 @@ blueprint = flask.Blueprint('artifact', __name__, url_prefix='/artifact',
 
 @blueprint.route('/create', methods={'GET', 'POST'})
 def create():
+    """
+    Add a new artifact to an experiment
+    """
+
     try:
         experiment_id = flask.request.args['experiment_id']
     except KeyError:
         experiment_id = flask.request.form['experiment_id']
     experiment_id = ObjectId(experiment_id)
+
+    form = ArtifactForm(experiment_id=experiment_id)
 
     # TODO create SAS token for Azure Blob Storage
     # this will be passed to Javascript for temporary authentication
@@ -39,7 +46,8 @@ def create():
     # Uploading Large Files in Windows Azure Blob Storage Using Shared Access Signature, HTML, and JavaScript
     # https://docs.microsoft.com/en-us/answers/questions/535512/how-to-upload-large-files-in-chunks-in-azure-blobs.html
 
-    if flask.request.method == 'POST':
+    # Process form submission
+    if form.validate_on_submit():
         db = app.mongo.db  # type: Database
 
         # Get Azure Blob Storage service client
@@ -97,10 +105,9 @@ def create():
         return flask.redirect(
             flask.url_for('experiment.detail', experiment_id=experiment_id))
 
-    time = owast.utils.html_datetime()
     return flask.render_template(
         template_name_or_list='artifact/create.html',
-        experiment_id=experiment_id, time=time)
+        experiment_id=experiment_id, form=form)
 
 
 @blueprint.route('/<string:artifact_id>')

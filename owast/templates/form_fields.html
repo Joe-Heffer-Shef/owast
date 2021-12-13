@@ -1,0 +1,13 @@
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+{% for field in form %}
+<!-- {{ field.name }} -->
+<div>
+
+    {{ field.label(class='form-label') }}
+    {{ field(class='form-control') }}
+    <p class="form-text">{{ field.description }}</p>
+    {% for error in field.errors -%}
+    <div class="alert-danger">{{ error }}</div>
+    {% endfor %}
+</div>
+{% endfor -%}

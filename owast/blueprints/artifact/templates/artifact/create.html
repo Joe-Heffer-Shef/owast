@@ -4,6 +4,8 @@
 <p>Upload a data file and specify its metadata.</p>
 <!-- This enctype is required for file upload -->
 <form method="post" enctype="multipart/form-data" action="{{ url_for(request.endpoint) }}">
+    {% include "form_fields.html" %}
+    {#
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <!-- Experiment ID -->
     <div>
@@ -30,6 +32,7 @@
                   name="attributes" rows="5">{}</textarea>
         <div class="form-text">JSON object (key-value pairs)</div>
     </div>
+     #}
 
     <!-- Submit -->
     <button type="submit" class="btn btn-primary mt-3">
