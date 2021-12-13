@@ -11,8 +11,6 @@ app = flask.current_app
 blueprint = flask.Blueprint('instance', __name__, url_prefix='/instance',
                             template_folder='templates')
 
-ObjectId.generation_time
-
 # Map JSON Schema data types to Python native types
 # https://json-schema.org/understanding-json-schema/reference/type.html
 JSON_TO_PYTHON = dict(
@@ -26,8 +24,8 @@ JSON_TO_PYTHON = dict(
 )
 
 
-def get_instance(schema_id: ObjectId, document_id: ObjectId) -> Tuple[dict,
-                                                                      dict]:
+def get_instance(schema_id: ObjectId,
+                 document_id: ObjectId) -> Tuple[dict, dict]:
     db = app.mongo.db  # type: Database
     schema = db.schemas.find_one_or_404(schema_id)
     collection = getattr(db, schema['collection'])
@@ -47,8 +45,19 @@ def detail(schema_id: ObjectId, document_id: ObjectId):
     collection = getattr(db, schema['collection'])
     instance = collection.find_one_or_404(document_id)
 
-    return flask.render_template('instance/detail.html', instance=instance,
-                                 schema=schema)
+    # Relationships
+    influencers = db.relations.find(dict(influencee_id=instance['_id']))
+    influencees = db.relations.find(dict(influencer_id=instance['_id']))
+
+    influencers = ((db.schemas.find_one_or_404(obj['influencer_schema_id']),
+                    obj) for obj in influencers)
+    influencees = ((db.schemas.find_one_or_404(obj['influencee_schema_id']),
+                    obj) for obj in influencees)
+
+    return flask.render_template(
+        'instance/detail.html', instance=instance, schema=schema,
+        influencers=influencers, influencees=influencees,
+    )
 
 
 @blueprint.route('/<ObjectId:schema_id>/<ObjectId:document_id>.json')

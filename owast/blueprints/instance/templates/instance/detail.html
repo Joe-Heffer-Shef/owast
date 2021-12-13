@@ -53,4 +53,34 @@
     {% endfor %}
     </dl>
 </div>
+<div class="row">
+<h2>Relationships</h2>
+    <div class="col">
+        <h3>Influenced By</h3>
+        <ul>
+        {% for schema, relation in influencers -%}
+            <li>
+                <a href="{{ url_for('instance.detail', schema_id=schema._id,
+                 document_id=relation.influencer_id) }}">{{ relation.type }}
+                    {{ schema.title }} {{ relation.influencer_id }}
+                </a>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    <div class="col">
+        <h3>Influences</h3>
+        <ul>
+        {% for schema, relation in influencees -%}
+            <li>
+                <a href="{{ url_for('instance.detail', schema_id=schema._id,
+                 document_id=relation.influencee_id) }}">{{ relation.type }}
+                    {{ schema.title }} {{ relation.influencee_id }}
+                </a>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+
+</div>
 {% endblock %}
