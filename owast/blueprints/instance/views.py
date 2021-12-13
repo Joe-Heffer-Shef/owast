@@ -1,10 +1,10 @@
 import itertools
 from typing import Tuple
 
-import flask
-from bson.objectid import ObjectId
 import bson.json_util
+import flask
 import graphviz
+from bson.objectid import ObjectId
 from flask_pymongo.wrappers import Database, Collection
 
 app = flask.current_app
@@ -148,6 +148,8 @@ def add_node(graph: graphviz.Digraph, schema: dict, instance: dict) -> \
             'collection'])  # type: Collection
         influencer = influencer_collection.find_one_or_404(
             relation['influencer_id'])
+
+        # Connect the nodes
         graph.edge(str(instance['_id']), str(influencer['_id']),
                    label=str(relation['type']))
 
