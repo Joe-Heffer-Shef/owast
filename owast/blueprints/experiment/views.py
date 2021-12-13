@@ -9,6 +9,7 @@ import flask
 import pymongo.database
 import pymongo.collection
 import pymongo.results
+from flask_pymongo.wrappers import Database, Collection
 import azure.storage.blob
 from bson.objectid import ObjectId
 
@@ -56,7 +57,7 @@ def create():
             dict(experiment_id=experiment_id))
 
         # Get document collection
-        experiments = app.mongo.db.experiments  # type: pymongo.collection.Collection
+        experiments = app.mongo.db.experiments  # type: Collection
 
         # Create new experiment record
         experiment = dict(
@@ -91,18 +92,22 @@ def detail(experiment_id: ObjectId):
     Show the details of a particular experiment
     """
 
-    _experiment = app.mongo.db.experiments.find_one_or_404(experiment_id)
+    db = app.mongo.db  # type: Database
 
-    # Show only certain fields
-    experiment = {key: value for key, value in _experiment.items()
-                  # Hide private fields
-                  if not key.startswith('_')}
+    experiment = app.mongo.db.experiments.find_one_or_404(experiment_id)
 
     # Get artifacts for this experiment
     artifacts = app.mongo.db.artifacts.find(dict(experiment_id=experiment_id))
 
+    influencers = (
+        (db.schemas.find_one_or_404(relation['influencer_schema_id']),
+         relation)
+        for relation in db.relations.find(dict(influencee_id=experiment_id))
+    )
+
     return flask.render_template('experiment/detail.html',
-                                 experiment=experiment, artifacts=artifacts)
+                                 experiment=experiment, artifacts=artifacts,
+                                 influencers=influencers)
 
 
 @blueprint.route('/<ObjectId:experiment_id>/delete')
@@ -111,9 +116,10 @@ def delete(experiment_id: ObjectId):
     Delete an experiment i.e. set deleted attribute to true.
     """
 
-    experiments = app.mongo.db.experiments  # type: pymongo.collection.Collection
-    update_result = experiments.update_one(dict(_id=experiment_id), {
-        '$set': dict(deleted=True)})  # type: pymongo.results.UpdateResult
+    experiments = app.mongo.db.experiments  # type: Collection
+    update_result = experiments.update_one(
+        dict(_id=experiment_id),
+        {'$set': dict(deleted=True)})  # type: pymongo.results.UpdateResult
     app.logger.debug(update_result.raw_result)
 
     flask.flash(f'Deleted experiment "{experiment_id}"')

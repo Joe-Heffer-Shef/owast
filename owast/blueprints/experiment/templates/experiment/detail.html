@@ -3,18 +3,14 @@
 {% set icon = 'align-bottom' %}
 {% block content %}
 <div>
-    <a class="btn btn-primary" href="{{ url_for('container.list_') }}">
-        <i class="bi bi-three-dots"></i>
-        Up
-    </a>
     <a class="btn btn-primary" href="{{ url_for('container.detail', container=experiment.container) }}">
-        <i class="bi bi-folder"></i>
-        View Container
+        <i class="bi bi-folder"></i> View Container
     </a>
+    <!--
     <a class="btn btn-danger" href="{{ url_for('experiment.delete', experiment_id=experiment.experiment_id) }}">
-        <i class="bi bi-trash-fill"></i>
-        Delete
+        <i class="bi bi-trash-fill"></i> Delete
     </a>
+    -->
 </div>
 <div>
     <!-- Metadata -->
@@ -28,7 +24,11 @@
             </tr>
             </thead>
             <tbody>
-            {% for key, value in experiment.items() %}
+            <tr>
+                <td>Created</td>
+                <td>{{ experiment._id.generation_time.isoformat() }}</td>
+            </tr>
+            {% for key, value in experiment.items() if not key.startswith('_') %}
             <tr>
                 <td>{{ key }}</td>
                 <td><code>{{ value | tojson }}</code></td>
@@ -43,7 +43,7 @@
         <h2>Artifacts</h2>
         <p>You can upload a new file here:</p>
         <p>
-            <a class="btn btn-primary" href="{{ url_for('artifact.create', experiment_id=experiment.experiment_id) }}">
+            <a class="btn btn-primary" href="{{ url_for('artifact.create', experiment_id=experiment._id) }}">
                 <span class="bi bi-cloud-upload-fill"></span>
                 Upload artifact
             </a>
@@ -69,5 +69,18 @@
             {% endfor %}
         </ul>
     </div>
+
+    <!-- Relationships -->
+    <h2>Influencers</h2>
+    <ul>
+        {% for schema, relation in influencers %}
+        <li>
+            <span class="bi bi-{{ schema.icon }}"></span>
+            <a href="{{ url_for('instance.detail', schema_id=schema._id, document_id=relation.influencer_id) }}">
+               {{ relation.type }} {{ schema.title }} {{ relation.influencer_id }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
 </div>
 {% endblock %}

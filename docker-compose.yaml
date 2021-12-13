@@ -46,7 +46,6 @@ services:
       - MONGO_URI=mongodb://meta:27017/owast
       - BLUEPRINTS_DIR=owast/blueprints
       - PREFERRED_URL_SCHEME=https
-      - JINJA_GLOBALS={"experiment_schema_id":"61b0a7c22d1e3a342f6c73b7"}
       # Gunicorn options
       # https://docs.gunicorn.org/en/stable/settings.html#settings
       - WSGI_APP=owast.app_factory:create_app()

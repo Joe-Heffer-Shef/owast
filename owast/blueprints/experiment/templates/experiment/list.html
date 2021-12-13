@@ -2,20 +2,16 @@
 {% set title = 'Experiments' %}
 {% set icon = 'align-bottom' %}
 {% block content %}
-<a class="btn btn-primary" href="{{ url_for('experiment.create') }}">
-    <i class="bi bi-plus-circle-fill"></i>
-    Add Experiment
-</a>
+<div class="menu mb-3">
+    <!-- Create -->
+    <a class="btn btn-primary" href="{{ url_for('experiment.create') }}">
+        <i class="bi bi-plus"></i> Add Experiment
+    </a>
+</div>
 <ul>
-    {% for experiment in experiments %}
+    {% for experiment in experiments -%}
     <li>
-        <i class="bi bi-align-bottom"></i>
-        <a href="{{ url_for('experiment.detail', experiment_id=experiment._id) }}">
-            {{ experiment.name }}</a>
-        <a class="btn btn-danger" href="{{ url_for('experiment.delete', experiment_id=experiment._id) }}"
-            title="Delete {{ experiment._id }}">
-            <span class="bi bi-trash-fill"></span>
-        </a>
+        <a href="{{ url_for('experiment.detail', experiment_id=experiment._id) }}">{{ experiment.name }}</a>
     </li>
     {% endfor %}
 </ul>

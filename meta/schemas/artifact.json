@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "http://localhost/schema/61b76d8fa8910f794d4836f9/schema.json",
+  "title": "Artifact",
+  "description": "A digital item",
+  "icon": "file",
+  "collection": "artifacts",
+  "type": "object",
+  "properties": {},
+  "required": []
+}
