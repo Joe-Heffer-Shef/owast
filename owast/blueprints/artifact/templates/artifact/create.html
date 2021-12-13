@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 {% set title = 'Add Artifact' %}
 {% block content %}
-<p>
-    Upload a data file and specify its metadata.
-</p>
+<p>Upload a data file and specify its metadata.</p>
+<!-- This enctype is required for file upload -->
 <form method="post" enctype="multipart/form-data" action="{{ url_for(request.endpoint) }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <!-- Experiment ID -->
     <div>
         <label class="form-label" for="experiment_id">Experiment identifier</label>
@@ -19,31 +19,16 @@
 
     <!-- File upload -->
     <div>
-        <label class="form-label" for="file_1">File</label>
-        <input class="form-control" type="file" name="file_1" id="file_1" required>
+        <label class="form-label" for="file">File</label>
+        <input class="form-control" type="file" name="file" id="file" required>
     </div>
 
     <!-- Metadata -->
-    <div class="row mt-2">
-        <div class="col">
-            <label class="form-label" for="meta_1_key">Metadata 1 Key</label>
-            <input type="text" class="form-control" name="meta_1_key" id="meta_1_key" required>
-        </div>
-        <div class="col">
-            <label class="form-label" for="meta_1_value">Metadata 1 Value</label>
-            <input type="text" class="form-control" name="meta_1_value" id="meta_1_value">
-        </div>
-    </div>
-
-    <div class="row mt-2">
-        <div class="col">
-            <label class="form-label" for="meta_2_key">Metadata 2 Key</label>
-            <input type="text" class="form-control" name="meta_2_key" id="meta_2_key" required>
-        </div>
-        <div class="col">
-            <label class="form-label" for="meta_2_value">Metadata 2 Value</label>
-            <input type="text" class="form-control" name="meta_2_value" id="meta_2_value">
-        </div>
+    <div>
+        <label class="form-label" for="attributes">Attributes</label>
+        <textarea class="form-control font-monospace" id="attributes"
+                  name="attributes" rows="5">{}</textarea>
+        <div class="form-text">JSON object (key-value pairs)</div>
     </div>
 
     <!-- Submit -->

@@ -13,7 +13,7 @@ def datetime_local_default(t: datetime.datetime = None) -> datetime.datetime:
     https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/datetime-local
     """
     t = t or datetime.datetime.utcnow()
-    return t.replace(microsecond=0, second=0)
+    return t.replace(microsecond=0)
 
 
 class UsedForm(WasInfluencedByForm):

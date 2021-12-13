@@ -2,13 +2,17 @@
 Artifact views
 """
 
+import json
+
 import flask
-import bson.objectid
+from bson.objectid import ObjectId
 import bson.json_util
 import azure.storage.blob
 import azure.core.exceptions
-import pymongo.collection
-import pymongo.results
+from azure.storage.blob import ContainerClient
+from pymongo.results import InsertOneResult, DeleteResult
+from flask_pymongo.wrappers import Database, Collection
+from werkzeug.datastructures import FileStorage
 
 import owast.utils
 import owast.blob
@@ -20,6 +24,12 @@ blueprint = flask.Blueprint('artifact', __name__, url_prefix='/artifact',
 
 @blueprint.route('/create', methods={'GET', 'POST'})
 def create():
+    try:
+        experiment_id = flask.request.args['experiment_id']
+    except KeyError:
+        experiment_id = flask.request.form['experiment_id']
+    experiment_id = ObjectId(experiment_id)
+
     # TODO create SAS token for Azure Blob Storage
     # this will be passed to Javascript for temporary authentication
 
@@ -30,56 +40,67 @@ def create():
     # https://docs.microsoft.com/en-us/answers/questions/535512/how-to-upload-large-files-in-chunks-in-azure-blobs.html
 
     if flask.request.method == 'POST':
-        experiment_id = flask.request.form['experiment_id']
-        container = experiment_id
+        db = app.mongo.db  # type: Database
 
         # Get Azure Blob Storage service client
         service_client = owast.blob.get_service_client()
+        container = str(experiment_id)
 
         # Upload file
-        for name, file in flask.request.files.items():
-            try:
-                # Create container (a folder for the experiment)
-                container_result = service_client.create_container(container)
-                app.logger.debug(container_result)
-            # Ignore if container already exists
-            except azure.core.exceptions.ResourceExistsError:
-                pass
+        file = flask.request.files['file']  # type: FileStorage
+        try:
+            # Create container (a folder for the experiment)
+            client = service_client.create_container(
+                container)  # type: ContainerClient
+            app.logger.info(f'Created container "{client.container_name}"')
+        # Ignore if container already exists
+        except azure.core.exceptions.ResourceExistsError:
+            pass
 
-            # Use a transaction so problems are rolled back
+        # TODO Use a transaction so problems are rolled back
 
-            # Create blob
-            blob_client = service_client.get_blob_client(
-                container=experiment_id, blob=file.filename)
-            blob_client.upload_blob(file, overwrite=True)
+        # Create blob
+        blob_client = service_client.get_blob_client(
+            container=container, blob=file.filename)
+        blob_client.upload_blob(file, overwrite=True)
 
-            flask.flash(f'Uploaded "{file.filename}"')
+        flask.flash(f'Uploaded "{file.filename}"')
 
-            # Add artifact record
-            artifact = dict(
-                # TODO use real ObjectId of the experiment
-                experiment_id=experiment_id,
-                container=container,
-                meta=owast.utils.get_metadata(),
-                name=file.filename,
-            )
+        # Add artifact record
+        artifact = dict(
+            experiment_id=experiment_id,
+            container=container,
+            name=file.filename,
+            **json.loads(flask.request.form['attributes']),
+        )
+        result = db.artifacts.insert_one(
+            artifact)  # type: InsertOneResult
+        app.logger.info(result.acknowledged)
 
-            app.logger.info(artifact)
-            result = app.mongo.db.artifacts.insert_one(
-                artifact)  # type: pymongo.results.InsertOneResult
+        # Add relation record
+        # https://www.w3.org/TR/prov-o/#wasGeneratedBy
+        relation = dict(
+            type='wasGeneratedBy',
+            influencee_schema_id=experiment_id,
+            influencee_id='',
+            influencer_schema_id='',
+            influencer_id='',
+        )
 
-            # Insert the artifact metadata into the blob metadata
-            blob_client.set_blob_metadata(
-                dict(artifact_id=str(result.inserted_id)))
+        # Insert the artifact metadata into the blob metadata
+        blob_client.set_blob_metadata(
+            dict(artifact_id=str(result.inserted_id),
+                 experiment_id=str(experiment_id))
+        )
 
         # Go back to this experiment
         return flask.redirect(
             flask.url_for('experiment.detail', experiment_id=experiment_id))
 
     time = owast.utils.html_datetime()
-    return flask.render_template('artifact/create.html',
-                                 experiment_id=flask.request.args[
-                                     'experiment_id'], time=time)
+    return flask.render_template(
+        template_name_or_list='artifact/create.html',
+        experiment_id=experiment_id, time=time)
 
 
 @blueprint.route('/<string:artifact_id>')
@@ -109,7 +130,7 @@ def delete(artifact_id: str):
     """
 
     # Get artifact
-    artifacts = app.mongo.db.artifacts  # type: pymongo.collection.Collection
+    artifacts = app.mongo.db.artifacts  # type: Collection
     key = dict(_id=bson.objectid.ObjectId(artifact_id))
     artifact = artifacts.find_one_or_404(key)
 
@@ -124,7 +145,7 @@ def delete(artifact_id: str):
         pass
 
     # Remove artifact
-    result = artifacts.delete_one(key)  # type: pymongo.results.DeleteResult
+    result = artifacts.delete_one(key)  # type: DeleteResult
     app.logger.debug(result.raw_result)
     flask.flash(f'Deleted artifact "{artifact_id}"')
 
@@ -141,7 +162,7 @@ def download(artifact_id: str):
     """
 
     # Get artifact
-    artifacts = app.mongo.db.artifacts  # type: pymongo.collection.Collection
+    artifacts = app.mongo.db.artifacts  # type: Collection
     key = dict(_id=bson.objectid.ObjectId(artifact_id))
     artifact = artifacts.find_one(key)
 

@@ -1,29 +1,10 @@
-import json
-
 import flask_wtf
-from wtforms import TextAreaField, HiddenField, SelectField
+from wtforms import SelectField
 from wtforms.validators import DataRequired
-from bson.objectid import ObjectId
 
+from owast.fields.json_textarea import JsonTextAreaField
+from owast.fields.objectid_input import ObjectIdStringField
 from ..constants import DEFAULT_RELATION, RELATION_TYPES
-
-
-class ObjectIdStringField(HiddenField):
-    """
-    String field for BSON object identifier.
-
-    https://docs.mongodb.com/manual/reference/method/ObjectId/
-    """
-
-    def process_formdata(self, valuelist: list):
-        if valuelist:
-            self.data = ObjectId(valuelist[0])
-
-
-class JsonTextAreaField(TextAreaField):
-    def process_formdata(self, valuelist: list):
-        if valuelist:
-            self.data = json.loads(valuelist[0])
 
 
 class WasInfluencedByForm(flask_wtf.FlaskForm):

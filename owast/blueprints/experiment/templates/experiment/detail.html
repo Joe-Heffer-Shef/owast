@@ -3,9 +3,6 @@
 {% set icon = 'align-bottom' %}
 {% block content %}
 <div>
-    <a class="btn btn-primary" href="{{ url_for('container.detail', container=experiment.container) }}">
-        <i class="bi bi-folder"></i> View Container
-    </a>
     <!--
     <a class="btn btn-danger" href="{{ url_for('experiment.delete', experiment_id=experiment.experiment_id) }}">
         <i class="bi bi-trash-fill"></i> Delete
@@ -41,29 +38,24 @@
     <!-- Files -->
     <div>
         <h2>Artifacts</h2>
-        <p>You can upload a new file here:</p>
-        <p>
-            <a class="btn btn-primary" href="{{ url_for('artifact.create', experiment_id=experiment._id) }}">
-                <span class="bi bi-cloud-upload-fill"></span>
-                Upload artifact
+        <div class="menu">
+            <a class="btn btn-primary" href="{{ url_for('container.detail', container=experiment._id) }}">
+                <i class="bi bi-folder"></i> View Container
             </a>
-        </p>
+            <a class="btn btn-success" href="{{ url_for('artifact.create', experiment_id=experiment._id) }}">
+                <span class="bi bi-cloud-upload-fill"></span> Upload artifact
+            </a>
+        </div>
         <p>The following files are associated with this experiment:</p>
         <ul>
             {% for artifact in artifacts %}
             <li>
                 <i class="bi bi-file"></i>
-                <a href="{{ url_for('artifact.detail', artifact_id=artifact._id) }}">
-                    {{ artifact.name }}</a>
+                <a href="{{ url_for('artifact.detail', artifact_id=artifact._id) }}">{{ artifact.name }}</a>
                 <!-- Download -->
                 <a class="btn btn-primary" href="{{ url_for('artifact.download', artifact_id=artifact._id) }}"
                     title="Download {{ artifact.name }}">
                     <span class="bi bi-cloud-download-fill"></span>
-                </a>
-                <!-- Delete -->
-                <a class="btn btn-primary" href="{{ url_for('artifact.delete', artifact_id=artifact._id) }}"
-                 title="Delete {{ artifact.name }}">
-                    <span class="bi bi-trash-fill"></span>
                 </a>
             </li>
             {% endfor %}
