@@ -16,6 +16,18 @@
         <span class="bi bi-braces"></span> JSON
     </a>
 
+    <!-- Graph DOT -->
+    <a class="btn btn-primary" href="{{ url_for('instance.dot', schema_id=schema._id, document_id=instance._id) }}"
+        title="View the network graph as DOT document">
+        <span class="bi bi-file-code"></span> DOT
+    </a>
+
+    <!-- Graph SVG -->
+    <a class="btn btn-primary" href="{{ url_for('instance.dot_image', schema_id=schema._id, document_id=instance._id) }}"
+        title="View the network graph as DOT document">
+        <span class="bi bi-bezier"></span> SVG
+    </a>
+
     <!-- Edit -->
     <a class="btn btn-primary" href="{{ url_for('instance.edit', schema_id=schema._id, document_id=instance._id, indent='  ') }}"
         title="Change this document">

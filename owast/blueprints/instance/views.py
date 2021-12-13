@@ -1,6 +1,11 @@
+import itertools
+from typing import Tuple
+
 import flask
 from bson.objectid import ObjectId
 import bson.json_util
+import graphviz
+from flask_pymongo.wrappers import Database, Collection
 
 app = flask.current_app
 blueprint = flask.Blueprint('instance', __name__, url_prefix='/instance',
@@ -17,6 +22,16 @@ JSON_TO_PYTHON = dict(
     array=list,
     null=None,
 )
+
+
+def get_instance(schema_id: ObjectId, document_id: ObjectId) -> Tuple[dict,
+                                                                      dict]:
+    db = app.mongo.db  # type: Database
+    schema = db.schemas.find_one_or_404(schema_id)
+    collection = getattr(db, schema['collection'])
+    instance = collection.find_one_or_404(document_id)
+
+    return schema, instance
 
 
 @blueprint.route('/<ObjectId:schema_id>/<ObjectId:document_id>')
@@ -115,21 +130,64 @@ def edit(schema_id: ObjectId, document_id: ObjectId):
                                  schema=schema)
 
 
-@blueprint.route('/<ObjectId:schema_id>/<ObjectId:document_id>/dot')
+def add_node(graph: graphviz.Digraph, schema: dict, instance: dict) -> \
+        graphviz.Digraph:
+    db = app.mongo.db  # type: Database
+
+    label = schema['title'] + '\n' + ', '.join(itertools.islice(
+        (f"{k}: {v}" for k, v in instance.items() if not k.startswith('_')
+         and v), 0, 3))
+    graph.node(str(instance['_id']), label=label)
+
+    # Iterate over relationships
+    relations = db.relations.find(dict(influencee_id=instance['_id']))
+    for relation in relations:
+        influencer_schema = db.schemas.find_one_or_404(
+            relation['influencer_schema_id'])
+        influencer_collection = getattr(db, influencer_schema[
+            'collection'])  # type: Collection
+        influencer = influencer_collection.find_one_or_404(
+            relation['influencer_id'])
+        graph.edge(str(instance['_id']), str(influencer['_id']),
+                   label=str(relation['type']))
+
+        add_node(graph, schema=influencer_schema, instance=influencer)
+
+    return graph
+
+
+def build_graph(schema: dict, instance: dict) -> graphviz.Digraph:
+    graph = graphviz.Digraph(str(instance['_id']),
+                             comment=schema['collection'])
+
+    # Recursively add nodes
+    add_node(graph, schema, instance)
+
+    return graph
+
+
+@blueprint.route('/<ObjectId:schema_id>/<ObjectId:document_id>.dot')
 def dot(schema_id: ObjectId, document_id: ObjectId):
     """
     GraphViz DOT notation
 
-    http://www.graphviz.org/doc/info/lang.html
+    https://www.graphviz.org/doc/info/lang.html
     """
+    schema, instance = get_instance(schema_id, document_id)
 
-    import graphviz
+    graph = build_graph(schema=schema, instance=instance)
 
-    db = app.mongo.db  # type: Database
-    schema = db.schemas.find_one_or_404(schema_id)
-    collection = getattr(db, schema['collection'])
-    instance = collection.find_one_or_404(document_id)
+    return app.response_class(graph.source, mimetype='text/vnd.graphviz')
 
-    dot = graphviz.Digraph('round-table', comment='The Round Table')
 
-    return dot.source
+@blueprint.route('/<ObjectId:schema_id>/<ObjectId:document_id>.svg')
+def dot_image(schema_id: ObjectId, document_id: ObjectId):
+    """
+    Render network graph as a vector image
+    """
+    schema, instance = get_instance(schema_id, document_id)
+
+    graph = build_graph(schema=schema, instance=instance)
+
+    return app.response_class(graph.pipe(format='svg'),
+                              mimetype='image/svg+xml')

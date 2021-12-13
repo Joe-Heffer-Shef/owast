@@ -3,7 +3,9 @@ FROM python:slim-bullseye
 # Update OS packages (and remove package info to save space)
 # "Official Debian and Ubuntu images automatically run apt-get clean, so explicit invocation is not required."
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
-RUN apt-get update && apt-get upgrade --yes && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get upgrade --yes \
+  && apt-get install --yes graphviz \
+  && rm -rf /var/lib/apt/lists/*
 
 ARG target_dir=/opt/owast
 
