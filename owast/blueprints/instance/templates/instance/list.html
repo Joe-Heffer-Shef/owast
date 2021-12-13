@@ -2,19 +2,20 @@
 {% set title = schema.title %}
 {% set icon = schema.icon or 'cup' %}
 {% block content %}
+<div class="menu border-bottom pb-3 mb-3">
+    <a class="btn btn-primary" href="{{ url_for('instance.create', schema_id=schema._id) }}">
+        <span class="bi bi-plus"></span> Add {{ schema.title }}</a>
+</div>
 <p>List of instances of this schema.</p>
 <ul>
     {% for document in documents -%}
     <li>
+        {{ document._id.generation_time }}
         <a href="{{ url_for('instance.detail', schema_id=schema._id, document_id=document._id) }}">
-            <span class="bi bi-{{ schema.icon }}"></span>
             {% for key, value in document.items() if not key.startswith('_') and value %}
-            {% if loop.index <= 3 %}
-                {{ key }} {{ value }}
-            {% endif -%}
+            {% if loop.index <= 3 %}{{ key }}: {{ value }}{% endif -%}
             {% endfor -%}
         </a>
-        {{ document._id.generation_time }}
     </li>
     {% endfor %}
 </ul>

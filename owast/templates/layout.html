@@ -36,6 +36,9 @@
       <a class="nav-link" href="{{ url_for('schema.list_') }}"><span class="bi bi-cup"></span> Research Objects</a>
     </li>
     <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('instance.list_', schema_id=experiment_schema_id) }}"><span class="bi bi-align-bottom"></span> Experiments</a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" href="{{ url_for('container.list_') }}"><span class="bi bi-folder"></span> Containers</a>
     </li>
     <li class="nav-item">
@@ -49,10 +52,8 @@
 <!-- Flashed messages -->
 <div id="flash">
 {% with messages = get_flashed_messages() -%}
-{% for message in messages %}
-  <div class="alert alert-primary" role="alert">
-    {{ message }}
-  </div>
+{% for message in messages -%}
+  <div class="alert alert-primary" role="alert">{{ message }}</div>
 {% endfor %}
 {% endwith %}
 </div>

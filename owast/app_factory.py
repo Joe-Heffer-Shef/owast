@@ -1,6 +1,7 @@
 import os
 import pathlib
 import itertools
+import json
 
 import flask
 import flask_pymongo
@@ -32,6 +33,7 @@ def create_app(*args, **kwargs) -> flask.Flask:
 
     # TODO LDAP authentication (Active Directory)
     register_blueprints(app)
+    register_jinja_globals(app)
 
     return app
 
@@ -56,3 +58,12 @@ def register_blueprints(app: flask.Flask, blueprints_dir: pathlib.Path = None):
             blueprint = f'{module}.blueprint'
             app.register_blueprint(eval(blueprint))
             app.logger.debug(f"Registered blueprint '{blueprint}'")
+
+
+def register_jinja_globals(app: flask.Flask):
+    jinja_globals = json.loads(
+        os.environ.get('JINJA_GLOBALS', '{}'))  # type: dict
+
+    for name, value in jinja_globals.items():
+        app.jinja_env.globals[name] = value
+        app.logger.info(f"Set Jinja template global {name}: '{value}'")
