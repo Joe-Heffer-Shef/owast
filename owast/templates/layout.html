@@ -27,10 +27,10 @@
 <nav class="navbar navbar-expand-lg">
   <ul class="navbar-nav bg-light">
     <li class="nav-item">
-      <a class="nav-link" href="/">
-        <span class="bi bi-house"></span>
-        Home
-      </a>
+      <a class="nav-link" href="/"><span class="bi bi-house"></span> Home</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('main.search') }}"><span class="bi bi-search"></span> Search</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="{{ url_for('schema.list_') }}">

@@ -43,6 +43,8 @@
     <h2>Details</h2>
     <p>These are the properties of this {{ schema.title | lower }}.</p>
     <dl>
+        <dt>Creation Timestamp</dt>
+        <dd>{{ instance._id.generation_time.isoformat() }}</dd>
     {% for key, value in instance.items() if not key.startswith('_') %}
         <dt>{{ key }}</dt>
         <dd>

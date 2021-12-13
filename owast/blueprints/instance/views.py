@@ -11,6 +11,8 @@ app = flask.current_app
 blueprint = flask.Blueprint('instance', __name__, url_prefix='/instance',
                             template_folder='templates')
 
+ObjectId.generation_time
+
 # Map JSON Schema data types to Python native types
 # https://json-schema.org/understanding-json-schema/reference/type.html
 JSON_TO_PYTHON = dict(
@@ -134,7 +136,7 @@ def add_node(graph: graphviz.Digraph, schema: dict, instance: dict) -> \
         graphviz.Digraph:
     db = app.mongo.db  # type: Database
 
-    label = schema['title'] + '\n' + ', '.join(itertools.islice(
+    label = schema['title'] + '\n' + '\n'.join(itertools.islice(
         (f"{k}: {v}" for k, v in instance.items() if not k.startswith('_')
          and v), 0, 3))
     graph.node(str(instance['_id']), label=label)

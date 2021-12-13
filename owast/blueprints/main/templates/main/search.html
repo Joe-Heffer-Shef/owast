@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% set title = 'Search' %}
+{% set icon = 'search' %}
+{% block content %}
+<form method="get" action="{{ url_for(request.endpoint) }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Collection -->
+    <label class=form-label" for="collection">Research Object</label>
+    <select class="form-control" name="collection" id="collection">
+    {% for schema, collection in collections.items() %}
+        <option value="{{ collection }}">{{ schema }}</option>
+    {% endfor %}
+    </select>
+
+    <!-- Query -->
+    <label class="form-label" for="query">Query</label>
+    <textarea class="form-control" id="query" name="query" class="form-control
+    font-monospace" rows="5">{}</textarea>
+
+    <!-- Submit -->
+    <input type="submit" class="btn btn-success" value="Search">
+</form>
+{% endblock %}
