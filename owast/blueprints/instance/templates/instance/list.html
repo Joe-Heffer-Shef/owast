@@ -14,7 +14,6 @@
 {% set url=url_for('instance.detail', schema_id=schema._id, document_id=document._id) -%}
     {% if loop.index == 1 %}
     <thead class="table-dark">
-        <th>Detail</th>
         <th>Unique Identifier</th>
         <th>Created</th>
         {% for key in document.keys() if not key.startswith('_') -%}
@@ -23,8 +22,8 @@
     </thead>
     {% endif %}
     <tr>
-        <td><a class="btn btn-primary" href="{{ url }}">Detail</a></td>
-        <td><a href="{{ url }}">{{ document._id }}</a></td>
+        <td><a class="btn btn-primary" href="{{ url }}">
+            <span class="bi bi-{{ icon }}"></span> {{ document._id }}</a></td>
         <td>{{ document._id.generation_time.isoformat() }}</td>
         {% for key, value in document.items() if not key.startswith('_') -%}
         <td>{{ value }}</td>
