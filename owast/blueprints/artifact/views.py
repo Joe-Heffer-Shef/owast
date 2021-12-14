@@ -74,8 +74,11 @@ def create():
         flask.flash(f'Uploaded "{file.filename}"')
 
         influencer_collection = 'experiments'
+        influencee_collection = 'artifacts'
         influencer_schema = db.schemas.find_one_or_404(dict(
             collection=influencer_collection))
+        influencee_schema = db.schemas.find_one_or_404(dict(
+            collection=influencee_collection))
 
         # Add artifact record
         artifact = dict(
@@ -87,16 +90,21 @@ def create():
         result = db.artifacts.insert_one(artifact)  # type: InsertOneResult
         app.logger.info(result.acknowledged)
 
-        # Add relation record
+        # Add relationship
         # https://www.w3.org/TR/prov-o/#wasGeneratedBy
         relation = dict(
             type='wasGeneratedBy',
+            # Influencee (this artifact)
+            influencee_schema=influencee_collection,
+            influencee_schema_id=influencee_schema['_id'],
+            influencee_id=result.inserted_id,
+            # Influencer (the experiment)
             influencer_id=experiment_id,
             influencer_collection=influencer_collection,
             influencer_schema_id=influencer_schema['_id'],
         )
-        result = db.relations.insert_one(relation)  # type: InsertOneResult
-        app.logger.info(result.acknowledged)
+        rel_result = db.relations.insert_one(relation)  # type: InsertOneResult
+        app.logger.info(rel_result.acknowledged)
 
         # Insert the artifact metadata into the blob metadata
         blob_client.set_blob_metadata(dict(artifact_id=str(result.inserted_id),
@@ -117,18 +125,22 @@ def detail(artifact_id: str):
     Show the info for a file
     """
 
+    db = app.mongo.db  # type: Database
+
     # Get artifact
-    artifact = app.mongo.db.artifacts.find_one_or_404(
+    artifact = db.artifacts.find_one_or_404(
         dict(_id=bson.objectid.ObjectId(artifact_id)))
 
-    # Serialise artifact to JSON
-    artifact_json = app.response_class(
-        bson.json_util.dumps(artifact, indent=2),
-        mimetype='application/json')
+    # Get relationships
+    influencers = db.relations.find(dict(influencee_id=artifact['_id']))
+    influencees = db.relations.find(dict(influencer_id=artifact['_id']))
 
-    return flask.render_template('artifact/detail.html',
-                                 artifact=artifact,
-                                 artifact_json=artifact_json)
+    return flask.render_template(
+        template_name_or_list='artifact/detail.html',
+        artifact=artifact,
+        influencers=influencers,
+        influencees=influencees,
+    )
 
 
 @blueprint.route('/<string:artifact_id>/delete')

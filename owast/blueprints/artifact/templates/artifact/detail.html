@@ -31,19 +31,21 @@
 <!-- Relationships -->
 <div class="row">
     <h2>Relationships</h2>
-{% for relation in artifact.relations %}
     <div class="card p-3 col">
         <h3><span class="bi bi-arrow-left"></span> Influencers</h3>
+        {% for relation in influencers %}
         <a class="btn btn-primary"
             href="{{ url_for('instance.detail', schema_id=relation.influencer_schema_id, document_id=relation.influencer_id) }}">
             {{ relation.type }} {{ relation.influencer_collection }} {{ relation.influencer_id }}</a>
+        {% endfor -%}
     </div>
-{% endfor -%}
     <div class="card col ms-3">
         <h3>Influencees <span class="bi bi-arrow-right"></span></h3>
-        <div class="alert alert-danger">
-            <span class="bi bi-cone"></span> TODO
-        </div>
+        {% for relation in influencees %}
+        <a class="btn btn-primary"
+            href="{{ url_for('instance.detail', schema_id=relation.influencer_schema_id, document_id=relation.influencer_id) }}">
+            {{ relation.type }} {{ relation.influencer_collection }} {{ relation.influencer_id }}</a>
+        {% endfor -%}
     </div>
 </div>
 {% endblock %}
