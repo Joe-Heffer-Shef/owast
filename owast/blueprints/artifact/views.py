@@ -83,26 +83,24 @@ def create():
             container=container,
             name=file.filename,
             **json.loads(flask.request.form['attributes']),
-            relations=[
-                # Add relation record
-                # https://www.w3.org/TR/prov-o/#wasGeneratedBy
-                dict(
-                    super='wasInfluencedBy',
-                    type='wasGeneratedBy',
-                    influencer_id=experiment_id,
-                    influencer_collection=influencer_collection,
-                    influencer_schema_id=influencer_schema['_id'],
-                )
-            ],
         )
         result = db.artifacts.insert_one(artifact)  # type: InsertOneResult
         app.logger.info(result.acknowledged)
 
-        # Insert the artifact metadata into the blob metadata
-        blob_client.set_blob_metadata(
-            dict(artifact_id=str(result.inserted_id),
-                 experiment_id=str(experiment_id))
+        # Add relation record
+        # https://www.w3.org/TR/prov-o/#wasGeneratedBy
+        relation = dict(
+            type='wasGeneratedBy',
+            influencer_id=experiment_id,
+            influencer_collection=influencer_collection,
+            influencer_schema_id=influencer_schema['_id'],
         )
+        result = db.relations.insert_one(relation)  # type: InsertOneResult
+        app.logger.info(result.acknowledged)
+
+        # Insert the artifact metadata into the blob metadata
+        blob_client.set_blob_metadata(dict(artifact_id=str(result.inserted_id),
+                                           experiment_id=str(experiment_id)))
 
         # Go back to this experiment
         return flask.redirect(
