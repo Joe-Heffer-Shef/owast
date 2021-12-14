@@ -43,6 +43,7 @@ def download(container: str, blob: str):
     """
     Retrieve data for this file
     """
+
     # Download blob
     blob_client = service_client.get_blob_client(
         container=container, blob=blob)

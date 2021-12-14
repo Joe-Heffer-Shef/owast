@@ -1,32 +1,49 @@
 {% extends "layout.html" %}
 {% set title = 'Artifact' %}
+{% set icon = 'file' %}
 {% block content %}
 <div class="actions">
     <!-- Blob -->
     <a class="btn btn-primary" href="{{ url_for('experiment.detail', experiment_id=artifact.experiment_id) }}">
-        <i class="bi bi-align-bottom"></i>
-        View Experiment
+        <i class="bi bi-align-bottom"></i> View Experiment
     </a>
     <!-- Delete -->
+    <!--
     <a class="btn btn-danger" href="{{ url_for('artifact.delete', artifact_id=artifact._id) }}">
-        <i class="bi bi-trash-fill"></i>
-        Delete
-    </a>
+        <i class="bi bi-trash-fill"></i> Delete
+    </a>-->
     <!-- Download -->
     <a class="btn btn-primary" href="{{ url_for('blob.download', container=artifact.container, blob=artifact.name) }}">
-        <i class="bi bi-cloud-download-fill"></i>
-        Download
+        <i class="bi bi-cloud-download"></i> Download
     </a>
     <!-- Blob -->
     <a class="btn btn-primary" href="{{ url_for('blob.detail', container=artifact.container, blob=artifact.name) }}">
-        <i class="bi bi-file"></i>
-        View Blob
+        <i class="bi bi-file-binary"></i> Blob
     </a>
 </div>
 <dl>
-{% for key, value in artifact.items() if not key.startswith('_') %}
+{% for key, value in artifact.items() if not key.startswith('_') and key != 'relations' %}
     <dt>{{ key }}</dt>
     <dd><code>{{ value }}</code></dd>
 {% endfor %}
 </dl>
+
+<!-- Relationships -->
+<div class="row">
+    <h2>Relationships</h2>
+{% for relation in artifact.relations %}
+    <div class="card p-3 col">
+        <h3><span class="bi bi-arrow-left"></span> Influencers</h3>
+        <a class="btn btn-primary"
+            href="{{ url_for('instance.detail', schema_id=relation.influencer_schema_id, document_id=relation.influencer_id) }}">
+            {{ relation.type }} {{ relation.influencer_collection }} {{ relation.influencer_id }}</a>
+    </div>
+{% endfor -%}
+    <div class="card col ms-3">
+        <h3>Influencees <span class="bi bi-arrow-right"></span></h3>
+        <div class="alert alert-danger">
+            <span class="bi bi-cone"></span> TODO
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -71,8 +71,11 @@ def create():
         blob_client = service_client.get_blob_client(
             container=container, blob=file.filename)
         blob_client.upload_blob(file, overwrite=True)
-
         flask.flash(f'Uploaded "{file.filename}"')
+
+        influencer_collection = 'experiments'
+        influencer_schema = db.schemas.find_one_or_404(dict(
+            collection=influencer_collection))
 
         # Add artifact record
         artifact = dict(
@@ -80,20 +83,20 @@ def create():
             container=container,
             name=file.filename,
             **json.loads(flask.request.form['attributes']),
+            relations=[
+                # Add relation record
+                # https://www.w3.org/TR/prov-o/#wasGeneratedBy
+                dict(
+                    super='wasInfluencedBy',
+                    type='wasGeneratedBy',
+                    influencer_id=experiment_id,
+                    influencer_collection=influencer_collection,
+                    influencer_schema_id=influencer_schema['_id'],
+                )
+            ],
         )
-        result = db.artifacts.insert_one(
-            artifact)  # type: InsertOneResult
+        result = db.artifacts.insert_one(artifact)  # type: InsertOneResult
         app.logger.info(result.acknowledged)
-
-        # Add relation record
-        # https://www.w3.org/TR/prov-o/#wasGeneratedBy
-        relation = dict(
-            type='wasGeneratedBy',
-            influencee_schema_id=experiment_id,
-            influencee_id='',
-            influencer_schema_id='',
-            influencer_id='',
-        )
 
         # Insert the artifact metadata into the blob metadata
         blob_client.set_blob_metadata(
@@ -162,16 +165,15 @@ def delete(artifact_id: str):
                       experiment_id=artifact['experiment_id']))
 
 
-@blueprint.route('/<string:artifact_id>/download')
-def download(artifact_id: str):
+@blueprint.route('/<ObjectId:artifact_id>/download')
+def download(artifact_id: ObjectId):
     """
     Download the artifact file from blob storage
     """
 
     # Get artifact
     artifacts = app.mongo.db.artifacts  # type: Collection
-    key = dict(_id=bson.objectid.ObjectId(artifact_id))
-    artifact = artifacts.find_one(key)
+    artifact = artifacts.find_one_or_404(artifact_id)
 
     return flask.redirect(
         flask.url_for('blob.download', container=artifact['container'],

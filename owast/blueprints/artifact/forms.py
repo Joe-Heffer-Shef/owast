@@ -22,6 +22,5 @@ class ArtifactForm(flask_wtf.FlaskForm):
         description='When the entity started to be used',
         format='%Y-%m-%dT%H:%M'
     )
-
     file = FileField(validators=[InputRequired()])
-    attributes = JsonTextAreaField()
+    attributes = JsonTextAreaField(render_kw={'class': 'text-monospace'})

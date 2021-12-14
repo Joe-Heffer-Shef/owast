@@ -45,11 +45,9 @@
     <dl>
         <dt>Creation Timestamp</dt>
         <dd>{{ instance._id.generation_time.isoformat() }}</dd>
-    {% for key, value in instance.items() if not key.startswith('_') %}
+    {% for key, value in instance.items() if not key.startswith('_') and key != 'relations' %}
         <dt>{{ key }}</dt>
-        <dd>
-            <code>{{ value|tojson }}</code>
-        </dd>
+        <dd><code>{{ value }}</code></dd>
     {% endfor %}
     </dl>
 </div>

@@ -2,8 +2,9 @@
 {% for field in form %}
 <!-- {{ field.name }} -->
 <div>
-
+    {% if field.widget.__class__.__name__ != 'HiddenInput'  -%}
     {{ field.label(class='form-label') }}
+    {% endif %}
     {{ field(class='form-control') }}
     <p class="form-text">{{ field.description }}</p>
     {% for error in field.errors -%}
