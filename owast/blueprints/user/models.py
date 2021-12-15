@@ -13,13 +13,22 @@ CLIENT_SECRET = os.environ['CLIENT_SECRET']
 AUTHORITY = os.environ['AUTHORITY']
 VALIDATE_AUTHORITY = distutils.util.strtobool(
     os.getenv('VALIDATE_AUTHORITY', 'True'))
+# Check SSL certificates for auth endpoints? (should be True in production)
+VERIFY = VALIDATE_AUTHORITY
 
 
 class User(flask_login.UserMixin):
     scopes = list()  # type: List[str]
+    session = None
 
     def __init__(self, user_id: str):
         self.id = user_id
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}(user_id={self.get_id()!r})'
+
+    def __str__(self):
+        return self.get_id()
 
     @classmethod
     def get_config(cls) -> dict:
@@ -29,13 +38,15 @@ class User(flask_login.UserMixin):
         https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
         """
 
+        session = cls.session or requests.Session()
+
         # Microsoft example:
         # https://login.microsoftonline.com/common/.well-known/openid-configuration
 
         # Retrieve endpoint data
-        url = urllib.parse.urljoin(AUTHORITY,
+        url = urllib.parse.urljoin(AUTHORITY + '/',
                                    '.well-known/openid-configuration')
-        response = requests.get(url)
+        response = session.get(url, verify=VERIFY)
         response.raise_for_status()
 
         return response.json()
@@ -47,10 +58,11 @@ class User(flask_login.UserMixin):
             client_credential=CLIENT_SECRET,
             authority=AUTHORITY,
             validate_authority=VALIDATE_AUTHORITY,
+            verify=VERIFY,
         )
 
     @classmethod
-    def get_auth_flow(cls) -> dict:
+    def get_auth_flow(cls, **kwargs) -> dict:
         """
         Authentication flow
 
@@ -58,6 +70,4 @@ class User(flask_login.UserMixin):
         https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-desktop-acquire-token?tabs=python
         """
         client_app = cls.get_app()
-        code_flow = client_app.initiate_auth_code_flow(
-            scopes=cls.scopes)  # type: dict
-        return code_flow
+        return client_app.initiate_auth_code_flow(scopes=cls.scopes, **kwargs)

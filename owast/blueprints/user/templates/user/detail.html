@@ -1,1 +1,8 @@
-hi
+{% extends "layout.html" %}
+{% set title = 'Profile' %}
+{% set icon = 'person-fill' %}
+{% block content %}
+<a href="{{ url_for('user.config') }}">config</a>
+<a href="{{ url_for('user.login') }}">login</a>
+<pre>{{ user }}</pre>
+{% endblock %}

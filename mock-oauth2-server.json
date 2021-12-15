@@ -1,6 +1,25 @@
 {
-  "httpServer" : {
-    "type" : "NettyWrapper",
-    "ssl" : {}
-  }
+  "interactiveLogin": true,
+  "httpServer": {
+    "type": "NettyWrapper",
+    "ssl": {}
+  },
+  "tokenCallbacks": [
+    {
+      "issuerId": "default",
+      "tokenExpiry": 120,
+      "requestMappings": [
+        {
+          "requestParam": "scope",
+          "match": "scope1",
+          "claims": {
+            "sub": "subByScope",
+            "aud": [
+              "audByScope"
+            ]
+          }
+        }
+      ]
+    }
+  ]
 }
