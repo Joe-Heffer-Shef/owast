@@ -13,7 +13,7 @@ services:
   # https://docs.microsoft.com/en-us/azure/cosmos-db/linux-emulator?tabs=ssl-netstd21
   # This has more of the features of the real Azure service
   meta:
-    image: mongo
+    image: mongo:5.0
     volumes:
       # Import scripts
       - ./meta:/meta
@@ -21,9 +21,9 @@ services:
 
   # Web interface to view the MongoDB instance
   meta-admin:
-    image: mongo-express
+    image: mongo-express:0.54
     ports:
-      - "81:8081"
+      - "8081:8081"
     environment:
       - ME_CONFIG_MONGODB_SERVER=meta
     depends_on:
@@ -52,7 +52,12 @@ services:
       - GUNICORN_CMD_ARGS=--log-level debug --user www-data --group www-data --reload True --chdir /opt/owast --bind 0.0.0.0 --timeout 600 --config owast/gunicorn.conf.py
       # Blob storage settings
       - BLOB_CONN_STR=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://blob:10000/devstoreaccount1;
-      - JSON_SCHEMA_SPEC=https://json-schema.org/draft/2020-12/schema
+      - JSON_SCHEMA_SPEC=https://json-schema.org/draft/2020-12/schema1
+      # Authentication
+      - CLIENT_ID=debugger
+      - CLIENT_SECRET=someSecret
+      - AUTHORITY=https://auth:8080/default
+      - VALIDATE_AUTHORITY=False
     restart: always
 
   # Web server
@@ -67,5 +72,16 @@ services:
       - ./nginx/owast.conf:/etc/nginx/conf.d/owast.conf
 
   # Mock Active Directory
-  #auth:
-  #  image: bitnami/openldap:2.4
+  # Microsoft Identity Platform:
+  # https://docs.microsoft.com/en-us/azure/active-directory/develop/
+  # Debugger: https://localhost:8080/default/debugger
+  auth:
+    # https://github.com/navikt/mock-oauth2-server#configuration
+    image: ghcr.io/navikt/mock-oauth2-server:0.4.0
+    volumes:
+      - ./mock-oauth2-server.json:/mock-oauth2-server.json
+    environment:
+      - SERVER_PORT=8080
+      - JSON_CONFIG_PATH=/mock-oauth2-server.json
+    ports:
+      - "8080:8080"

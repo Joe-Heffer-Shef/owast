@@ -1,0 +1,6 @@
+{
+  "httpServer" : {
+    "type" : "NettyWrapper",
+    "ssl" : {}
+  }
+}

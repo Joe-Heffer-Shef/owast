@@ -7,6 +7,7 @@ import flask
 import flask_pymongo
 import flask_talisman
 import flask_seasurf
+import flask_login
 
 
 def create_app(*args, **kwargs) -> flask.Flask:
@@ -27,11 +28,14 @@ def create_app(*args, **kwargs) -> flask.Flask:
     # Cross-site request forgery (CSRF) protection
     flask_seasurf.SeaSurf(app)
 
+    # Register user authentication plugin
+
     # Configure NoSQL database
     app.config['MONGO_URI'] = os.environ['MONGO_URI']
     app.mongo = flask_pymongo.PyMongo(app)
 
     # TODO LDAP authentication (Active Directory)
+    register_login_manager(app)
     register_blueprints(app)
     register_jinja_globals(app)
 
@@ -67,3 +71,15 @@ def register_jinja_globals(app: flask.Flask):
     for name, value in jinja_globals.items():
         app.jinja_env.globals[name] = value
         app.logger.info(f"Set Jinja template global {name}: '{value}'")
+
+
+def register_login_manager(app: flask.Flask):
+    """
+    https://flask-login.readthedocs.io/en/latest/#how-it-works
+    """
+    login_manager = flask_login.LoginManager(app)
+
+    @login_manager.user_loader
+    def load_user(user_id: str):
+        from .blueprints.user.models import User
+        return User(user_id)
