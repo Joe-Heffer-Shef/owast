@@ -19,11 +19,12 @@ services:
       - ./meta:/meta
       - ./.volumes/meta:/data/db
 
-  # Web interface to view the MongoDB instance
+  # Web interface to manage the MongoDB instance
   meta-admin:
     image: mongo-express
     ports:
-      - "81:8081"
+      # Expose http://localhost:8081/
+      - "8081:8081"
     environment:
       - ME_CONFIG_MONGODB_SERVER=meta
     depends_on:
