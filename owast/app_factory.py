@@ -8,6 +8,8 @@ import flask_pymongo
 import flask_talisman
 import flask_seasurf
 
+FLASK_CONFIG_OBJECT = os.getenv('FLASK_CONFIG_OBJECT', 'owast.flaskconfig')
+
 
 def create_app(*args, **kwargs) -> flask.Flask:
     """
@@ -16,9 +18,7 @@ def create_app(*args, **kwargs) -> flask.Flask:
 
     app = flask.Flask(__name__, *args, **kwargs)
     # Load settings
-    app.config.from_object(os.getenv('FLASK_CONFIG_OBJECT',
-                                     'owast.flaskconfig'))
-    app.config['BLUEPRINTS_DIR'] = os.environ['BLUEPRINTS_DIR']
+    app.config.from_object(FLASK_CONFIG_OBJECT)
 
     # Security plugin
     flask_talisman.Talisman(app,
@@ -28,7 +28,6 @@ def create_app(*args, **kwargs) -> flask.Flask:
     flask_seasurf.SeaSurf(app)
 
     # Configure NoSQL database
-    app.config['MONGO_URI'] = os.environ['MONGO_URI']
     app.mongo = flask_pymongo.PyMongo(app)
 
     # TODO LDAP authentication (Active Directory)

@@ -7,3 +7,4 @@ Flask-SeaSurf~=0.3
 gunicorn~=20.1
 Flask-WTF~=1.0
 graphviz~=0.19
+Flask-Login~=0.5
